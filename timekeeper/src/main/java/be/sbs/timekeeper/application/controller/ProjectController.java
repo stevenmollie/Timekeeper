@@ -3,6 +3,7 @@ package be.sbs.timekeeper.application.controller;
 
 import be.sbs.timekeeper.application.beans.Project;
 import be.sbs.timekeeper.application.service.ProjectService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import java.util.List;
 @RequestMapping("/Project")
 public class ProjectController {
 
+    @Autowired
     private final ProjectService projectService;
 
     public ProjectController(ProjectService projectService) {
@@ -20,7 +22,7 @@ public class ProjectController {
     }
 
     @GetMapping(path = "/{projectId}")
-    public Project getProjectById(@PathVariable long projectId){
+    public Project getProjectById(@PathVariable String projectId){
         return projectService.getById(projectId);
     }
 
