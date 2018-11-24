@@ -1,6 +1,7 @@
 package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.Project;
+import be.sbs.timekeeper.application.exception.ProjectNotFoundException;
 import be.sbs.timekeeper.application.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ public class ProjectService {
     private ProjectRepository projectRepository;
 
     public Project getById(String projectId) {
-       return projectRepository.findById(projectId).get();
+       return projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project not found"));
     }
 
     public List<Project> getAll() {
