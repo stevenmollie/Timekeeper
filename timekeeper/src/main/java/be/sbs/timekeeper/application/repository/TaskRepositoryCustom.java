@@ -20,7 +20,6 @@ public class TaskRepositoryCustom {
 	public List<Task> findTasksByProjectId(String projectId){
 		Query query = new Query();
 		query.addCriteria(Criteria.where("projectId").is(projectId));
-		System.out.println(query.toString());
 		return mongoOperations.find(query, Task.class);
 	}
 	

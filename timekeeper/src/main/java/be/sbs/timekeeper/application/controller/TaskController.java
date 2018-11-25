@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;//moet erbij voor testing (GDG20181125)
 
 import be.sbs.timekeeper.application.beans.Project;
 import be.sbs.timekeeper.application.beans.Task;
@@ -19,6 +20,7 @@ import be.sbs.timekeeper.application.service.ProjectService;
 import be.sbs.timekeeper.application.service.TaskService;
 
 @RestController
+@CrossOrigin
 @RequestMapping(path = "/Task")
 public class TaskController {
 	
