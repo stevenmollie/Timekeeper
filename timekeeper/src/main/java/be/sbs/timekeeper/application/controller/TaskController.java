@@ -31,20 +31,12 @@ public class TaskController {
 		return taskService.getAll();
 	}
 	
-	@PostMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseStatus(HttpStatus.CREATED)
-	public void addTAsk(@RequestBody Task task) {
-		//TODO this not right, a method result should always be used
-		projectService.getById(task.getProjectId());
-		taskService.addTask(task);
-	}
-	
 	@GetMapping(path = "/GetTasksFromProject/{projectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public List<Task> getAllTaskFromProject(@PathVariable String projectId){
 		//check if project exists
 		Project p = projectService.getById(projectId);
-		
+
 		//if project exists get all the tasks from the project
 		return taskService.getAllTasksFromProject(p);
 	}
@@ -53,6 +45,14 @@ public class TaskController {
 	@ResponseStatus(HttpStatus.OK)
 	public Task findById(@PathVariable String taskId) {
 		return taskService.findById(taskId);
+	}
+
+	@PostMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseStatus(HttpStatus.CREATED)
+	public void addTAsk(@RequestBody Task task) {
+		//TODO this not right, a method result should always be used
+		projectService.getById(task.getProjectId());
+		taskService.addTask(task);
 	}
 
 	@PatchMapping(path = "/{taskId}")
