@@ -38,7 +38,6 @@ public class ProjectController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void addProject(@RequestBody Project project){
-        if(StringUtils.isEmpty(project.getName())) throw new BadRequestException("cannot create " + project.toString());
         projectService.addProject(project);
     }
 

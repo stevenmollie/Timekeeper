@@ -1,6 +1,7 @@
 package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.Project;
+import be.sbs.timekeeper.application.exception.BadRequestException;
 import be.sbs.timekeeper.application.exception.ProjectNotFoundException;
 import be.sbs.timekeeper.application.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class ProjectService {
     }
 
     public void addProject(Project project) {
+        if(project.getName() == null || project.getName().isEmpty()) {
+            throw new BadRequestException("cannot create " + project.toString());
+        }
        projectRepository.insert(project);
     }
 }
