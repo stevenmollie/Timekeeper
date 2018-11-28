@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="gs-accessing-mongodb-data-rest" target="1.11" />
+      <module name="gs-accessing-mongodb-data-rest" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>
