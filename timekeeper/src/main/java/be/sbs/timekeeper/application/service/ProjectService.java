@@ -41,6 +41,7 @@ public class ProjectService {
     private boolean notAllFieldsPresent(Project project) {
         return project.getId() == null
                 || project.getName() == null
+                || project.getName().isEmpty()
                 || project.getDescription() == null
                 || project.getDeadLine() == null;
 
