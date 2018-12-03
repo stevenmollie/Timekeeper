@@ -3,11 +3,13 @@ package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.Task;
 import be.sbs.timekeeper.application.exception.BadRequestException;
+import be.sbs.timekeeper.application.exception.TaskNotFoundException;
 import be.sbs.timekeeper.application.repository.TaskRepository;
 import be.sbs.timekeeper.application.repository.TaskRepositoryCustom;
 import be.sbs.timekeeper.application.valueobjects.PatchOperation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -53,7 +55,7 @@ class TaskServiceTest {
 
 
     @Nested
-    @DisplayName("Adding task tests")
+    @DisplayName("POST task tests")
     class AddTaskTests {
 
         @Nested
@@ -105,7 +107,7 @@ class TaskServiceTest {
     }
 
     @Nested
-    @DisplayName("Patching task tests")
+    @DisplayName("PATCH task tests")
     class PatchTaskTests {
 
         @Nested
@@ -154,6 +156,70 @@ class TaskServiceTest {
                         Arguments.of(TASK_ID, "add", "/currentTime", DATE_TIME_STRING),
                         Arguments.of(TASK_ID, "replace", "/currentTime", null),
                         Arguments.of(TASK_ID, "replace", "/name", DATE_TIME_STRING));
+            }
+
+            @Test
+            void test_noTaskId() {
+                assertThrows(TaskNotFoundException.class,
+                        () -> taskService.applyPatch(null, new PatchOperation("replace", "/currentTime", DATE_TIME_STRING)));
+            }
+        }
+
+
+    }
+
+    @Nested
+    @DisplayName("PUT task tests")
+    class UpdateTaskTests {
+
+        @Nested
+        @TestInstance(PER_CLASS)
+        @DisplayName("Basic putting tests with allowed values")
+        class BasicTests {
+
+            @ParameterizedTest
+            @MethodSource("allowedParametersValues")
+            void test_withAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime) {
+                Task task = new Task(id, name, description, projectId, currentTime);
+                taskService.updateTask(task);
+                verify(taskRepository).save(taskArgumentCaptor.capture());
+                Task result = taskArgumentCaptor.getValue();
+                reset(taskRepository);
+                assertThat(task).isEqualToComparingFieldByField(result);
+            }
+
+            private Stream<Arguments> allowedParametersValues() {
+                return Stream.of(
+                        Arguments.of(TASK_ID, "name", "desc", PROJECT_ID, LocalDateTime.now()),
+                        Arguments.of(TASK_ID, "name", "", PROJECT_ID, LocalDateTime.now()));
+            }
+        }
+
+        @Nested
+        @TestInstance(PER_CLASS)
+        @DisplayName("Patching tests that throw Exceptions")
+        class ExceptionsTests {
+
+            @ParameterizedTest
+            @MethodSource("notAllowedParametersValues")
+            void test_withNotAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime) {
+                assertThrows(BadRequestException.class,
+                        () -> taskService.addTask(new Task(id, name, description, projectId, currentTime)));
+            }
+
+            private Stream<Arguments> notAllowedParametersValues() {
+                return Stream.of(
+                        Arguments.of(TASK_ID, "name", "desc", PROJECT_ID, LocalDateTime.now()),
+                        Arguments.of(null, null, "desc", PROJECT_ID, LocalDateTime.now()),
+                        Arguments.of(null, "", "desc", PROJECT_ID, LocalDateTime.now()),
+                        Arguments.of(null, "name", "desc", null, LocalDateTime.now()));
+            }
+
+
+            @Test
+            void test_noTaskId() {
+                assertThrows(TaskNotFoundException.class,
+                        () -> taskService.applyPatch(null, new PatchOperation("replace", "/currentTime", DATE_TIME_STRING)));
             }
         }
 

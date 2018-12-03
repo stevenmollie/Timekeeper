@@ -48,12 +48,6 @@
 			<artifactId>jsr305</artifactId>
 			<version>3.0.0</version>
 		</dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.16</version>
-            <scope>provided</scope>
-        </dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -64,10 +58,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.7.0</version>
 				<configuration>
-					<source>8</source>
-					<target>8</target>
+					<compilerArgs>
+						<arg>-parameters</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -98,6 +93,18 @@
 						<artifactId>junit-platform-launcher</artifactId>
 						<version>1.1.1</version>
 						<scope>test</scope>
+					</dependency>
+					<dependency>
+						<groupId>com.fasterxml.jackson.module</groupId>
+						<artifactId>jackson-module-parameter-names</artifactId>
+					</dependency>
+					<dependency>
+						<groupId>com.fasterxml.jackson.datatype</groupId>
+						<artifactId>jackson-datatype-jdk8</artifactId>
+					</dependency>
+					<dependency>
+						<groupId>com.fasterxml.jackson.datatype</groupId>
+						<artifactId>jackson-datatype-jsr310</artifactId>
 					</dependency>
 				</dependencies>
 			</dependencyManagement>
