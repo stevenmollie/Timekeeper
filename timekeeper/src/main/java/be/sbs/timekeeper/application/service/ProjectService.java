@@ -29,4 +29,20 @@ public class ProjectService {
         }
        projectRepository.insert(project);
     }
+
+    public void updateProject(Project project) {
+        if (notAllFieldsPresent(project))
+            throw new BadRequestException("Update not permitted for these values.");
+        projectRepository.findById(project.getId())
+                .orElseThrow(() -> new ProjectNotFoundException("Cannot update project: " + project.getId() + ". the project doesn't exist!"));
+        projectRepository.save(project);
+    }
+
+    private boolean notAllFieldsPresent(Project project) {
+        return project.getId() == null
+                || project.getName() == null
+                || project.getDescription() == null
+                || project.getDeadLine() == null;
+
+    }
 }

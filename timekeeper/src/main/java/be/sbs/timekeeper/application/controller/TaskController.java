@@ -62,6 +62,7 @@ public class TaskController {
     }
 
     @PutMapping
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public void updateTask(@RequestBody Task task) {
         taskService.updateTask(task);
 	}

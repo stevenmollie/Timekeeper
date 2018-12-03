@@ -2,12 +2,10 @@ package be.sbs.timekeeper.application.controller;
 
 
 import be.sbs.timekeeper.application.beans.Project;
-import be.sbs.timekeeper.application.exception.BadRequestException;
 import be.sbs.timekeeper.application.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +37,12 @@ public class ProjectController {
     @ResponseStatus(HttpStatus.CREATED)
     public void addProject(@RequestBody Project project){
         projectService.addProject(project);
+    }
+
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateProject(@RequestBody Project project) {
+        projectService.updateProject(project);
     }
 
 }
