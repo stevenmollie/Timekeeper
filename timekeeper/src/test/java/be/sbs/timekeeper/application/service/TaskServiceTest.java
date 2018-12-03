@@ -67,11 +67,10 @@ class TaskServiceTest {
             @MethodSource("allowedParametersValues")
             void test_withAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime) {
                 Task task = new Task(id, name, description, projectId, currentTime);
+
                 taskService.addTask(task);
-                verify(taskRepository).insert(taskArgumentCaptor.capture());
-                Task result = taskArgumentCaptor.getValue();
-                reset(taskRepository);
-                assertThat(task).isEqualToComparingFieldByField(result);
+
+                assertThat(task).isEqualToComparingFieldByField(interceptInsertInDB());
             }
 
             private Stream<Arguments> allowedParametersValues() {
@@ -80,6 +79,13 @@ class TaskServiceTest {
                         Arguments.of(null, "name", "", PROJECT_ID, null),
                         Arguments.of(null, "name", "", PROJECT_ID, LocalDateTime.now()),
                         Arguments.of(null, "name", "desc", PROJECT_ID, LocalDateTime.now()));
+            }
+
+            private Task interceptInsertInDB() {
+                verify(taskRepository).insert(taskArgumentCaptor.capture());
+                Task result = taskArgumentCaptor.getValue();
+                reset(taskRepository);
+                return result;
             }
 
         }
@@ -119,23 +125,26 @@ class TaskServiceTest {
             @MethodSource("allowedParametersValues")
             void test_withAllowedValues(String id, String op, String path, String value) {
                 PatchOperation patchOperation = new PatchOperation(op, path, value);
-                when(taskRepository.findById(id))
-                        .thenReturn(Optional.of(new Task(null, null, null, null, null)));
+                injectFindById(id);
 
                 taskService.applyPatch(id, patchOperation);
 
-                verify(taskRepositoryCustom).saveOperation(eq(id), patchOperationArgumentCaptor.capture());
-
-                PatchOperation result = patchOperationArgumentCaptor.getValue();
-                reset(taskRepositoryCustom);
-                reset(taskRepository);
-                assertThat(patchOperation).isEqualToComparingFieldByField(result);
+                assertThat(patchOperation).isEqualToComparingFieldByField(interceptSaveToDB(id));
             }
 
             private Stream<Arguments> allowedParametersValues() {
                 return Stream.of(
                         Arguments.of(TASK_ID, "replace", "/currentTime", DATE_TIME_STRING),
                         Arguments.of(TASK_ID, "replace", "/deadLine", DATE_TIME_STRING));
+            }
+
+            private PatchOperation interceptSaveToDB(String id) {
+                verify(taskRepositoryCustom).saveOperation(eq(id), patchOperationArgumentCaptor.capture());
+
+                PatchOperation result = patchOperationArgumentCaptor.getValue();
+                reset(taskRepositoryCustom);
+                reset(taskRepository);
+                return result;
             }
         }
 
@@ -164,8 +173,6 @@ class TaskServiceTest {
                         () -> taskService.applyPatch(null, new PatchOperation("replace", "/currentTime", DATE_TIME_STRING)));
             }
         }
-
-
     }
 
     @Nested
@@ -181,6 +188,8 @@ class TaskServiceTest {
             @MethodSource("allowedParametersValues")
             void test_withAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime) {
                 Task task = new Task(id, name, description, projectId, currentTime);
+                injectFindById(id);
+
                 taskService.updateTask(task);
                 verify(taskRepository).save(taskArgumentCaptor.capture());
                 Task result = taskArgumentCaptor.getValue();
@@ -197,32 +206,40 @@ class TaskServiceTest {
 
         @Nested
         @TestInstance(PER_CLASS)
-        @DisplayName("Patching tests that throw Exceptions")
+        @DisplayName("Putting tests that throw Exceptions")
         class ExceptionsTests {
 
             @ParameterizedTest
             @MethodSource("notAllowedParametersValues")
             void test_withNotAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime) {
                 assertThrows(BadRequestException.class,
-                        () -> taskService.addTask(new Task(id, name, description, projectId, currentTime)));
+                        () -> taskService.updateTask(new Task(id, name, description, projectId, currentTime)));
             }
 
             private Stream<Arguments> notAllowedParametersValues() {
                 return Stream.of(
-                        Arguments.of(TASK_ID, "name", "desc", PROJECT_ID, LocalDateTime.now()),
-                        Arguments.of(null, null, "desc", PROJECT_ID, LocalDateTime.now()),
-                        Arguments.of(null, "", "desc", PROJECT_ID, LocalDateTime.now()),
-                        Arguments.of(null, "name", "desc", null, LocalDateTime.now()));
+                        Arguments.of(null, "name", "desc", PROJECT_ID, LocalDateTime.now()),
+                        Arguments.of(TASK_ID, null, "desc", PROJECT_ID, LocalDateTime.now()),
+                        Arguments.of(TASK_ID, null, "desc", null, LocalDateTime.now()),
+                        Arguments.of(TASK_ID, null, "desc", PROJECT_ID, null),
+                        Arguments.of(TASK_ID, "name", null, PROJECT_ID, LocalDateTime.now()));
             }
 
 
             @Test
-            void test_noTaskId() {
+            void test_TaskNotFound() {
+                when(taskRepository.findById(TASK_ID))
+                        .thenReturn(Optional.empty());
                 assertThrows(TaskNotFoundException.class,
-                        () -> taskService.applyPatch(null, new PatchOperation("replace", "/currentTime", DATE_TIME_STRING)));
+                        () -> taskService.updateTask(new Task(TASK_ID, "name", "desc", PROJECT_ID, LocalDateTime.now())));
             }
         }
 
 
+    }
+
+    private void injectFindById(String id) {
+        when(taskRepository.findById(id))
+                .thenReturn(Optional.of(new Task(null, null, null, null, null)));
     }
 }

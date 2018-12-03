@@ -48,8 +48,19 @@ public class TaskService {
     }
 
     public void updateTask(Task task) {
+        if (notAllFieldsPresent(task))
+            throw new BadRequestException("Update not permitted for these values.");
         taskRepository.findById(task.getId())
                 .orElseThrow(() -> new TaskNotFoundException("Cannot update task: " + task.getId() + ". the task doesn't exist!"));
         taskRepository.save(task);
     }
+
+    private boolean notAllFieldsPresent(Task task) {
+        return task.getId() == null
+                || task.getName() == null
+                || task.getDescription() == null
+                || task.getCurrentTime() == null
+                || task.getProjectId() == null;
+    }
+
 }
