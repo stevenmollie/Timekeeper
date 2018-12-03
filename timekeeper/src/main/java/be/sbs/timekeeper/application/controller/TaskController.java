@@ -1,16 +1,15 @@
 package be.sbs.timekeeper.application.controller;
 
-import java.util.List;
-
+import be.sbs.timekeeper.application.beans.Project;
+import be.sbs.timekeeper.application.beans.Task;
+import be.sbs.timekeeper.application.service.ProjectService;
+import be.sbs.timekeeper.application.service.TaskService;
 import be.sbs.timekeeper.application.valueobjects.PatchOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import be.sbs.timekeeper.application.beans.Project;
-import be.sbs.timekeeper.application.beans.Task;
-import be.sbs.timekeeper.application.service.ProjectService;
-import be.sbs.timekeeper.application.service.TaskService;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -28,7 +27,9 @@ public class TaskController {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public List<Task> getAll(){
-		return taskService.getAll();
+		List<Task> all = taskService.getAll();
+		System.out.println("all.toString() = " + all.toString());
+		return all;
 	}
 	
 	@GetMapping(path = "/GetTasksFromProject/{projectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
