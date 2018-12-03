@@ -17,7 +17,12 @@ public class PersistenceConfiguration {
     @Bean
     public MongoCustomConversions customConversions() {
         final ArrayList<? extends Converter<? extends Serializable, ? extends Serializable>> converters =
-                new ArrayList<>(Arrays.asList(new LocalDateTimeToStringConverter(), new StringToLocalDateTimeConverter()));
+                new ArrayList<>(Arrays.asList(
+                        new LocalDateTimeToStringConverter(),
+                        new StringToLocalDateTimeConverter(),
+                        new LocalDateToStringConverter(),
+                        new StringToLocalDateConverter()
+                ));
         return new MongoCustomConversions(converters);
     }
 

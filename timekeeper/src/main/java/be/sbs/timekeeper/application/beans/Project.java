@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Document
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -16,14 +16,13 @@ public class Project {
     private String id;
     private String name;
     private String description;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime deadLine;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate deadLine;
 
     public Project() {
     }
 
-    public Project(String id, String name, String description, LocalDateTime deadLine) {
-        super();
+    public Project(String id, String name, String description, LocalDate deadLine) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -54,14 +53,11 @@ public class Project {
         this.description = description;
     }
 
-    public LocalDateTime getDeadLine() {
+    public LocalDate getDeadLine() {
         return deadLine;
     }
 
-    public void setDeadLine(LocalDateTime deadLine) {
+    public void setDeadLine(LocalDate deadLine) {
         this.deadLine = deadLine;
     }
-
-    
-    
 }

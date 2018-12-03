@@ -17,7 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +51,7 @@ class ProjectServiceTest {
 
             @ParameterizedTest
             @MethodSource("allowedParametersValues")
-            void test_addProject_withAllowedValues(String projectId, String name, String description, LocalDateTime deadLine) {
+            void test_addProject_withAllowedValues(String projectId, String name, String description, LocalDate deadLine) {
                 Project project = new Project(projectId, name, description, deadLine);
                 projectService.addProject(project);
                 verify(projectRepository).insert(projectArgumentCaptor.capture());
@@ -64,8 +64,8 @@ class ProjectServiceTest {
                 return Stream.of(
                         Arguments.of(null, "project", "Hello", null),
                         Arguments.of(null, "project", "", null),
-                        Arguments.of(null, "project", "", LocalDateTime.now()),
-                        Arguments.of(null, "project", "Hello", LocalDateTime.now()));
+                        Arguments.of(null, "project", "", LocalDate.now()),
+                        Arguments.of(null, "project", "Hello", LocalDate.now()));
             }
         }
 
@@ -76,16 +76,16 @@ class ProjectServiceTest {
 
             @ParameterizedTest
             @MethodSource("notAllowedParametersValues")
-            void test_addProject_withNotAllowedValues(String projectId, String name, String description, LocalDateTime deadLine) {
+            void test_addProject_withNotAllowedValues(String projectId, String name, String description, LocalDate deadLine) {
                 assertThrows(BadRequestException.class,
                         () -> projectService.addProject(new Project(projectId, name, description, deadLine)));
             }
 
             private Stream<Arguments> notAllowedParametersValues() {
                 return Stream.of(
-                        Arguments.of(PROJECT_ID, "project", "Description", LocalDateTime.now()),
+                        Arguments.of(PROJECT_ID, "project", "Description", LocalDate.now()),
                         Arguments.of(null, "", "Description", null),
-                        Arguments.of(null, null, "Description", LocalDateTime.now()));
+                        Arguments.of(null, null, "Description", LocalDate.now()));
             }
         }
 
