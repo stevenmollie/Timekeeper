@@ -24,7 +24,7 @@ public class ProjectService {
     }
 
     public void addProject(Project project) {
-        if(project.getName() == null || project.getName().isEmpty()) {
+        if (project.getName() == null || project.getName().isEmpty() || project.getId() != null) {
             throw new BadRequestException("cannot create " + project.toString());
         }
        projectRepository.insert(project);

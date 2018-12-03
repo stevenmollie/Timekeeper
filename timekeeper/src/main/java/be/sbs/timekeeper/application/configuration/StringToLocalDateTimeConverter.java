@@ -1,13 +1,13 @@
 package be.sbs.timekeeper.application.configuration;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.convert.WritingConverter;
+import org.springframework.data.convert.ReadingConverter;
 
 import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@WritingConverter
+@ReadingConverter
 public class StringToLocalDateTimeConverter implements Converter<String, LocalDateTime> {
 
     @Nullable

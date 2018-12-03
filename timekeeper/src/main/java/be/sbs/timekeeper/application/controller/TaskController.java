@@ -28,7 +28,6 @@ public class TaskController {
 	@ResponseStatus(HttpStatus.OK)
 	public List<Task> getAll(){
 		List<Task> all = taskService.getAll();
-		System.out.println("all.toString() = " + all.toString());
 		return all;
 	}
 	
@@ -58,7 +57,12 @@ public class TaskController {
 
 	@PatchMapping(path = "/{taskId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void apply(@PathVariable String taskId, @RequestBody PatchOperation patchOperations) {
-		taskService.updateTask(taskId, patchOperations);
+    public void applyPatch(@PathVariable String taskId, @RequestBody PatchOperation patchOperations) {
+        taskService.applyPatch(taskId, patchOperations);
+    }
+
+    @PutMapping
+    public void updateTask(@RequestBody Task task) {
+        taskService.updateTask(task);
 	}
 }
