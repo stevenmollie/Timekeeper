@@ -58,6 +58,7 @@ public class TaskService {
     private boolean notAllFieldsPresent(Task task) {
         return task.getId() == null
                 || task.getName() == null
+                || task.getName().trim().isEmpty()
                 || task.getDescription() == null
                 || task.getCurrentTime() == null
                 || task.getProjectId() == null;

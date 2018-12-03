@@ -2,12 +2,15 @@ package be.sbs.timekeeper.application.controller;
 
 
 import be.sbs.timekeeper.application.beans.Project;
+import be.sbs.timekeeper.application.enums.ProjectStatus;
 import be.sbs.timekeeper.application.service.ProjectService;
+import be.sbs.timekeeper.application.valueobjects.ProjectStatusListResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -27,6 +30,11 @@ public class ProjectController {
         return projectService.getById(projectId);
     }
 
+    @GetMapping(path = "/_statuses")
+    public ProjectStatusListResponse getListOfStatuses() {
+        return new ProjectStatusListResponse(Arrays.asList(ProjectStatus.values()));
+    }
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public List<Project> getAll(){
@@ -44,5 +52,6 @@ public class ProjectController {
     public void updateProject(@RequestBody Project project) {
         projectService.updateProject(project);
     }
+
 
 }
