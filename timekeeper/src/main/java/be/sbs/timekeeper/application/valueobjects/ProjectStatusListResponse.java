@@ -1,6 +1,7 @@
 package be.sbs.timekeeper.application.valueobjects;
 
 import be.sbs.timekeeper.application.enums.ProjectStatus;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +25,7 @@ public class ProjectStatusListResponse {
 
         Status(ProjectStatus status) {
             this.code = ProjectStatus.getIndexOf(status);
-            this.name = status.name().replace("_", " ").toLowerCase();
+            this.name = StringUtils.capitalize(status.name().replace("_", " ").toLowerCase());
         }
 
         public Integer getCode() {

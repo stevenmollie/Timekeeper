@@ -2,10 +2,12 @@ package be.sbs.timekeeper.application.controller;
 
 import be.sbs.timekeeper.application.beans.Project;
 import be.sbs.timekeeper.application.beans.Task;
+import be.sbs.timekeeper.application.enums.Priority;
 import be.sbs.timekeeper.application.enums.TaskStatus;
 import be.sbs.timekeeper.application.service.ProjectService;
 import be.sbs.timekeeper.application.service.TaskService;
 import be.sbs.timekeeper.application.valueobjects.PatchOperation;
+import be.sbs.timekeeper.application.valueobjects.PrioritiesListResponse;
 import be.sbs.timekeeper.application.valueobjects.TaskStatusListResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -73,6 +75,11 @@ public class TaskController {
     @GetMapping(path = "/_statuses")
     public TaskStatusListResponse getListOfStatuses() {
         return new TaskStatusListResponse(Arrays.asList(TaskStatus.values()));
+    }
+
+    @GetMapping(path = "/_priorities")
+    public PrioritiesListResponse getListOfPriorities() {
+        return new PrioritiesListResponse(Arrays.asList(Priority.values()));
     }
 
 }
