@@ -28,7 +28,9 @@ public class TaskController {
 		this.taskService = taskService;
 		this.projectService = projectService;
 	}
-	
+
+
+    //---- GET ------------------------------------------------------------------------------------
 	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public List<Task> getAll(){
@@ -52,26 +54,6 @@ public class TaskController {
 		return taskService.findById(taskId);
 	}
 
-	@PostMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseStatus(HttpStatus.CREATED)
-	public void addTAsk(@RequestBody Task task) {
-		//TODO this not right, a method result should always be used
-		projectService.getById(task.getProjectId());
-		taskService.addTask(task);
-	}
-
-	@PatchMapping(path = "/{taskId}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-    public void applyPatch(@PathVariable String taskId, @RequestBody PatchOperation patchOperations) {
-        taskService.applyPatch(taskId, patchOperations);
-    }
-
-    @PutMapping
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateTask(@RequestBody Task task) {
-        taskService.updateTask(task);
-	}
-
     @GetMapping(path = "/_statuses")
     public TaskStatusListResponse getListOfStatuses() {
         return new TaskStatusListResponse(Arrays.asList(TaskStatus.values()));
@@ -80,6 +62,29 @@ public class TaskController {
     @GetMapping(path = "/_priorities")
     public PrioritiesListResponse getListOfPriorities() {
         return new PrioritiesListResponse(Arrays.asList(Priority.values()));
+    }
+
+    //---- POST -----------------------------------------------------------------------------------
+    @PostMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addTAsk(@RequestBody Task task) {
+        //TODO this not right, a method result should always be used
+        projectService.getById(task.getProjectId());
+        taskService.addTask(task);
+    }
+
+    //---- PATCH ----------------------------------------------------------------------------------
+    @PatchMapping(path = "/{taskId}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+    public void applyPatch(@PathVariable String taskId, @RequestBody PatchOperation patchOperations) {
+        taskService.applyPatch(taskId, patchOperations);
+    }
+
+    //---- PUT ------------------------------------------------------------------------------------
+    @PutMapping
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateTask(@RequestBody Task task) {
+        taskService.updateTask(task);
     }
 
 }

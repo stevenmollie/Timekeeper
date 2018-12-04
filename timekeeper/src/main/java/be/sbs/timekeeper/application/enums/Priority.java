@@ -1,15 +1,21 @@
 package be.sbs.timekeeper.application.enums;
 
-import java.util.stream.IntStream;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import org.apache.commons.lang3.StringUtils;
 
 public enum Priority {
-    VER_LOW, LOW, MEDIUM, HIGH, VERY_HIGH;
+    VERY_LOW, LOW, MEDIUM, HIGH, VERY_HIGH;
 
-    public static Integer getIndexOf(Priority statuc) {
-        return IntStream.range(0, Priority.values().length)
-                .filter(i -> Priority.values()[i] == statuc)
-                .findFirst()
-                .getAsInt();
+    @JsonCreator
+    public static Priority fromString(String source) {
+        return source == null
+                ? null
+                : Priority.valueOf(source.toUpperCase().trim().replace(" ", "_"));
+    }
 
+    @JsonValue
+    public String getKey() {
+        return StringUtils.capitalize(this.name().toLowerCase().replace("_", " "));
     }
 }
