@@ -87,4 +87,11 @@ public class TaskController {
         taskService.updateTask(task);
     }
 
+    //---- DELETE ---------------------------------------------------------------------------------
+    @DeleteMapping(path = "/{taskId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTask(@PathVariable String taskId) {
+        taskService.deleteTask(taskId);
+    }
+
 }

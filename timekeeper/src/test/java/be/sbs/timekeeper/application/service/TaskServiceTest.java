@@ -240,8 +240,28 @@ class TaskServiceTest {
 
     }
 
+    @Nested
+    @DisplayName("DELETE task tests")
+    class DeleteTaskTests {
+
+        @Nested
+        @TestInstance(PER_CLASS)
+        @DisplayName("Deleting tests that throw Exceptions")
+        class ExceptionsTests {
+            @Test
+            void test_TaskNotFound() {
+                when(taskRepository.findById(TASK_ID))
+                        .thenReturn(Optional.empty());
+                assertThrows(TaskNotFoundException.class,
+                        () -> taskService.deleteTask(TASK_ID));
+            }
+        }
+
+
+    }
+
     private void injectFindById(String id) {
         when(taskRepository.findById(id))
-                .thenReturn(Optional.of(new Task(null, null, null, null, null, Priority.MEDIUM)));
+                .thenReturn(Optional.of(new Task(TASK_ID, "testing find by id injection", "", PROJECT_ID, null, Priority.MEDIUM)));
     }
 }

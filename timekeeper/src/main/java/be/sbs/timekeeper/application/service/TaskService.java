@@ -82,4 +82,8 @@ public class TaskService {
                 || task.getProjectId() == null;
     }
 
+    public void deleteTask(String taskId) {
+        taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task : " + taskId + " doesn't exist!"));
+        taskRepository.deleteById(taskId);
+    }
 }
