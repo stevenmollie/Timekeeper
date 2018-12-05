@@ -3,6 +3,7 @@ package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.Task;
 import be.sbs.timekeeper.application.enums.Priority;
+import be.sbs.timekeeper.application.enums.TaskStatus;
 import be.sbs.timekeeper.application.exception.BadRequestException;
 import be.sbs.timekeeper.application.exception.TaskNotFoundException;
 import be.sbs.timekeeper.application.repository.TaskRepository;
@@ -66,8 +67,8 @@ class TaskServiceTest {
 
             @ParameterizedTest
             @MethodSource("allowedParametersValues")
-            void test_withAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime, Priority priority) {
-                Task task = new Task(id, name, description, projectId, currentTime, priority);
+            void test_withAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime, Priority priority, TaskStatus status) {
+                Task task = new Task(id, name, description, projectId, currentTime, priority, status);
 
                 taskService.addTask(task);
 
@@ -76,10 +77,31 @@ class TaskServiceTest {
 
             private Stream<Arguments> allowedParametersValues() {
                 return Stream.of(
-                        Arguments.of(null, "name", "desc", PROJECT_ID, null, Priority.MEDIUM),
-                        Arguments.of(null, "name", "", PROJECT_ID, null, Priority.MEDIUM),
-                        Arguments.of(null, "name", "", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM),
-                        Arguments.of(null, "name", "desc", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM));
+                        Arguments.of(null, "name", "desc", PROJECT_ID, null, Priority.MEDIUM, TaskStatus.READY_TO_START),
+                        Arguments.of(null, "name", "", PROJECT_ID, null, Priority.MEDIUM, TaskStatus.READY_TO_START),
+                        Arguments.of(null, "name", "", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM, TaskStatus.READY_TO_START),
+                        Arguments.of(null, "name", "", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM, null),
+                        Arguments.of(null, "name", "", PROJECT_ID, LocalDateTime.now(), null, TaskStatus.READY_TO_START),
+                        Arguments.of(null, "name", "", PROJECT_ID, LocalDateTime.now(), null, null),
+                        Arguments.of(null, "name", "desc", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM, TaskStatus.READY_TO_START));
+            }
+
+            @Test
+            public void testDefaultPriority() {
+                Task task = new Task(null, "name", "", PROJECT_ID, LocalDateTime.now(), null, TaskStatus.READY_TO_START);
+
+                taskService.addTask(task);
+
+                assertThat(interceptInsertInDB().getPriority()).isEqualTo(Priority.MEDIUM);
+            }
+
+            @Test
+            public void testDefaultStatus() {
+                Task task = new Task(null, "name", "", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM, null);
+
+                taskService.addTask(task);
+
+                assertThat(interceptInsertInDB().getStatus()).isEqualTo(TaskStatus.READY_TO_START);
             }
 
             private Task interceptInsertInDB() {
@@ -98,18 +120,22 @@ class TaskServiceTest {
 
             @ParameterizedTest
             @MethodSource("notAllowedParametersValues")
-            void test_withNotAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime, Priority priority) {
+            void test_withNotAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime, Priority priority, TaskStatus status) {
                 assertThrows(BadRequestException.class,
-                        () -> taskService.addTask(new Task(id, name, description, projectId, currentTime, priority)));
+                        () -> taskService.addTask(new Task(id, name, description, projectId, currentTime, priority, status)));
             }
 
             private Stream<Arguments> notAllowedParametersValues() {
                 return Stream.of(
-                        Arguments.of(TASK_ID, "name", "desc", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM),
-                        Arguments.of(null, null, "desc", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM),
-                        Arguments.of(null, "", "desc", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM),
-                        Arguments.of(null, "", "desc", PROJECT_ID, LocalDateTime.now(), null),
-                        Arguments.of(null, "name", "desc", null, LocalDateTime.now(), Priority.MEDIUM));
+                        Arguments.of(TASK_ID, "name", "desc", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM, TaskStatus.READY_TO_START),
+                        Arguments.of(null, null, "desc", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM, TaskStatus.READY_TO_START),
+                        Arguments.of(null, "", "desc", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM, TaskStatus.READY_TO_START),
+                        Arguments.of(null, "", "desc", PROJECT_ID, LocalDateTime.now(), null, TaskStatus.READY_TO_START),
+                        Arguments.of(null, "name", "desc", PROJECT_ID, null, Priority.MEDIUM, TaskStatus.DONE),
+                        Arguments.of(null, "name", "desc", PROJECT_ID, null, Priority.MEDIUM, TaskStatus.IN_PROGRESS),
+                        Arguments.of(null, "name", "desc", PROJECT_ID, null, Priority.MEDIUM, TaskStatus.CANCELED),
+                        Arguments.of(null, "", "desc", PROJECT_ID, LocalDateTime.now(), null, null),
+                        Arguments.of(null, "name", "desc", null, LocalDateTime.now(), Priority.MEDIUM, TaskStatus.READY_TO_START));
             }
         }
     }
@@ -137,6 +163,18 @@ class TaskServiceTest {
             private Stream<Arguments> allowedParametersValues() {
                 return Stream.of(
                         Arguments.of(TASK_ID, "replace", "/currentTime", DATE_TIME_STRING),
+
+                        Arguments.of(TASK_ID, "replace", "/priority", Priority.VERY_LOW.name()),
+                        Arguments.of(TASK_ID, "replace", "/priority", Priority.LOW.name()),
+                        Arguments.of(TASK_ID, "replace", "/priority", Priority.MEDIUM.name()),
+                        Arguments.of(TASK_ID, "replace", "/priority", Priority.HIGH.name()),
+                        Arguments.of(TASK_ID, "replace", "/priority", Priority.VERY_HIGH.name()),
+
+                        Arguments.of(TASK_ID, "replace", "/status", TaskStatus.READY_TO_START.name()),
+                        Arguments.of(TASK_ID, "replace", "/status", TaskStatus.IN_PROGRESS.name()),
+                        Arguments.of(TASK_ID, "replace", "/status", TaskStatus.CANCELED.name()),
+                        Arguments.of(TASK_ID, "replace", "/status", TaskStatus.DONE.name()),
+
                         Arguments.of(TASK_ID, "replace", "/deadLine", DATE_TIME_STRING));
             }
 
@@ -188,8 +226,8 @@ class TaskServiceTest {
 
             @ParameterizedTest
             @MethodSource("allowedParametersValues")
-            void test_withAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime) {
-                Task task = new Task(id, name, description, projectId, currentTime, Priority.MEDIUM);
+            void test_withAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime, TaskStatus status) {
+                Task task = new Task(id, name, description, projectId, currentTime, Priority.MEDIUM, status);
                 injectFindById(id);
 
                 taskService.updateTask(task);
@@ -201,8 +239,8 @@ class TaskServiceTest {
 
             private Stream<Arguments> allowedParametersValues() {
                 return Stream.of(
-                        Arguments.of(TASK_ID, "name", "desc", PROJECT_ID, LocalDateTime.now()),
-                        Arguments.of(TASK_ID, "name", "", PROJECT_ID, LocalDateTime.now()));
+                        Arguments.of(TASK_ID, "name", "desc", PROJECT_ID, LocalDateTime.now(), TaskStatus.READY_TO_START),
+                        Arguments.of(TASK_ID, "name", "", PROJECT_ID, LocalDateTime.now(), TaskStatus.READY_TO_START));
             }
         }
 
@@ -213,18 +251,19 @@ class TaskServiceTest {
 
             @ParameterizedTest
             @MethodSource("notAllowedParametersValues")
-            void test_withNotAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime) {
+            void test_withNotAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime, TaskStatus status) {
                 assertThrows(BadRequestException.class,
-                        () -> taskService.updateTask(new Task(id, name, description, projectId, currentTime, Priority.MEDIUM)));
+                        () -> taskService.updateTask(new Task(id, name, description, projectId, currentTime, Priority.MEDIUM, status)));
             }
 
             private Stream<Arguments> notAllowedParametersValues() {
                 return Stream.of(
-                        Arguments.of(null, "name", "desc", PROJECT_ID, LocalDateTime.now()),
-                        Arguments.of(TASK_ID, null, "desc", PROJECT_ID, LocalDateTime.now()),
-                        Arguments.of(TASK_ID, null, "desc", null, LocalDateTime.now()),
-                        Arguments.of(TASK_ID, null, "desc", PROJECT_ID, null),
-                        Arguments.of(TASK_ID, "name", null, PROJECT_ID, LocalDateTime.now()));
+                        Arguments.of(null, "name", "desc", PROJECT_ID, LocalDateTime.now(), TaskStatus.READY_TO_START),
+                        Arguments.of(TASK_ID, null, "desc", PROJECT_ID, LocalDateTime.now(), TaskStatus.READY_TO_START),
+                        Arguments.of(TASK_ID, null, "desc", null, LocalDateTime.now(), TaskStatus.READY_TO_START),
+                        Arguments.of(TASK_ID, null, "desc", PROJECT_ID, null, TaskStatus.READY_TO_START),
+                        Arguments.of(TASK_ID, null, "desc", PROJECT_ID, null, null),
+                        Arguments.of(TASK_ID, "name", null, PROJECT_ID, LocalDateTime.now(), TaskStatus.READY_TO_START));
             }
 
 
@@ -233,7 +272,7 @@ class TaskServiceTest {
                 when(taskRepository.findById(TASK_ID))
                         .thenReturn(Optional.empty());
                 assertThrows(TaskNotFoundException.class,
-                        () -> taskService.updateTask(new Task(TASK_ID, "name", "desc", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM)));
+                        () -> taskService.updateTask(new Task(TASK_ID, "name", "desc", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM, TaskStatus.DONE)));
             }
         }
 
@@ -262,6 +301,6 @@ class TaskServiceTest {
 
     private void injectFindById(String id) {
         when(taskRepository.findById(id))
-                .thenReturn(Optional.of(new Task(TASK_ID, "testing find by id injection", "", PROJECT_ID, null, Priority.MEDIUM)));
+                .thenReturn(Optional.of(new Task(TASK_ID, "testing find by id injection", "", PROJECT_ID, null, Priority.MEDIUM, TaskStatus.IN_PROGRESS)));
     }
 }

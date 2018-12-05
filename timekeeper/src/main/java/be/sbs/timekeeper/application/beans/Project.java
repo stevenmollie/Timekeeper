@@ -60,4 +60,15 @@ public class Project {
     public void setDeadLine(LocalDate deadLine) {
         this.deadLine = deadLine;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Project{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", deadLine=").append(deadLine);
+        sb.append('}');
+        return sb.toString();
+    }
 }
