@@ -4,6 +4,7 @@ import be.sbs.timekeeper.application.beans.Project;
 import be.sbs.timekeeper.application.beans.Task;
 import be.sbs.timekeeper.application.enums.Priority;
 import be.sbs.timekeeper.application.enums.TaskStatus;
+import be.sbs.timekeeper.application.exception.BadRequestException;
 import be.sbs.timekeeper.application.service.ProjectService;
 import be.sbs.timekeeper.application.service.TaskService;
 import be.sbs.timekeeper.application.valueobjects.PatchOperation;
@@ -69,6 +70,7 @@ public class TaskController {
     @ResponseStatus(HttpStatus.CREATED)
     public void addTAsk(@RequestBody Task task) {
         //TODO this not right, a method result should always be used
+        if (task.getProjectId() == null) throw new BadRequestException("The project id cannot be null");
         projectService.getById(task.getProjectId());
         taskService.addTask(task);
     }
