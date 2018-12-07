@@ -39,6 +39,7 @@ class TaskServiceTest {
     private static final String PROJECT_ID = "123456abc";
     private static final String TASK_ID = "123456abc";
     private static final String DATE_TIME_STRING = "2018-07-24T11:18:58";
+    private static final String DATE_TIME_STRING_SHORT = "2018-07-24";
 
     @Mock
     private TaskRepository taskRepository;
@@ -173,9 +174,7 @@ class TaskServiceTest {
                         Arguments.of(TASK_ID, "replace", "/status", TaskStatus.READY_TO_START.name()),
                         Arguments.of(TASK_ID, "replace", "/status", TaskStatus.IN_PROGRESS.name()),
                         Arguments.of(TASK_ID, "replace", "/status", TaskStatus.CANCELED.name()),
-                        Arguments.of(TASK_ID, "replace", "/status", TaskStatus.DONE.name()),
-
-                        Arguments.of(TASK_ID, "replace", "/deadLine", DATE_TIME_STRING));
+                        Arguments.of(TASK_ID, "replace", "/status", TaskStatus.DONE.name()));
             }
 
             private PatchOperation interceptSaveToDB(String id) {

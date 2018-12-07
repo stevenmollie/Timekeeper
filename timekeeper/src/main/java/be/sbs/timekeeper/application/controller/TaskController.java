@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping(path = "/Task")
+@RequestMapping(path = {"/Task", "/task"})
 public class TaskController {
 	
 	private final TaskService taskService;

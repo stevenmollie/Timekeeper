@@ -2,6 +2,7 @@ package be.sbs.timekeeper.application.service;
 
 
 import be.sbs.timekeeper.application.beans.Project;
+import be.sbs.timekeeper.application.enums.ProjectStatus;
 import be.sbs.timekeeper.application.exception.BadRequestException;
 import be.sbs.timekeeper.application.exception.ProjectNotFoundException;
 import be.sbs.timekeeper.application.repository.ProjectRepository;
@@ -53,8 +54,8 @@ class ProjectServiceTest {
 
             @ParameterizedTest
             @MethodSource("allowedParametersValues")
-            void test_addProject_withAllowedValues(String projectId, String name, String description, LocalDate deadLine) {
-                Project project = new Project(projectId, name, description, deadLine);
+            void test_addProject_withAllowedValues(String projectId, String name, String description, LocalDate deadLine, ProjectStatus status) {
+                Project project = new Project(projectId, name, description, deadLine, status);
                 projectService.addProject(project);
                 verify(projectRepository).insert(projectArgumentCaptor.capture());
                 Project result = projectArgumentCaptor.getValue();
@@ -64,10 +65,10 @@ class ProjectServiceTest {
 
             private Stream<Arguments> allowedParametersValues() {
                 return Stream.of(
-                        Arguments.of(null, "project", "Hello", null),
-                        Arguments.of(null, "project", "", null),
-                        Arguments.of(null, "project", "", LocalDate.now()),
-                        Arguments.of(null, "project", "Hello", LocalDate.now()));
+                        Arguments.of(null, "project", "Hello", null, null),
+                        Arguments.of(null, "project", "", null, ProjectStatus.EMPTY),
+                        Arguments.of(null, "project", "", LocalDate.now(), ProjectStatus.EMPTY),
+                        Arguments.of(null, "project", "Hello", LocalDate.now(), ProjectStatus.EMPTY));
             }
         }
 
@@ -78,16 +79,21 @@ class ProjectServiceTest {
 
             @ParameterizedTest
             @MethodSource("notAllowedParametersValues")
-            void test_addProject_withNotAllowedValues(String projectId, String name, String description, LocalDate deadLine) {
+            void test_addProject_withNotAllowedValues(String projectId, String name, String description, LocalDate deadLine, ProjectStatus status) {
                 assertThrows(BadRequestException.class,
-                        () -> projectService.addProject(new Project(projectId, name, description, deadLine)));
+                        () -> projectService.addProject(new Project(projectId, name, description, deadLine, status)));
             }
 
             private Stream<Arguments> notAllowedParametersValues() {
                 return Stream.of(
-                        Arguments.of(PROJECT_ID, "project", "Description", LocalDate.now()),
-                        Arguments.of(null, "", "Description", null),
-                        Arguments.of(null, null, "Description", LocalDate.now()));
+                        Arguments.of(PROJECT_ID, "project", "Description", LocalDate.now(), ProjectStatus.EMPTY),
+                        Arguments.of(null, "", "Description", null, ProjectStatus.READY_TO_START),
+                        Arguments.of(null, "", "Description", LocalDate.now(), ProjectStatus.READY_TO_START),
+                        Arguments.of(null, "", "Description", LocalDate.now(), ProjectStatus.CANCELED),
+                        Arguments.of(null, "", "Description", LocalDate.now(), ProjectStatus.DONE),
+                        Arguments.of(null, "", "Description", LocalDate.now(), ProjectStatus.IN_PROGRESS),
+                        Arguments.of(null, "", "Description", LocalDate.now(), null),
+                        Arguments.of(null, null, "Description", LocalDate.now(), ProjectStatus.IN_PROGRESS));
             }
         }
 
@@ -105,10 +111,10 @@ class ProjectServiceTest {
 
             @ParameterizedTest
             @MethodSource("allowedParametersValues")
-            void test_withAllowedValues(String projectId, String name, String description, LocalDate deadLine) {
-                Project project = new Project(projectId, name, description, deadLine);
+            void test_withAllowedValues(String projectId, String name, String description, LocalDate deadLine, ProjectStatus status) {
+                Project project = new Project(projectId, name, description, deadLine, status);
 
-                when(projectRepository.findById(projectId)).thenReturn(Optional.of(new Project(null, null, null, null)));
+                when(projectRepository.findById(projectId)).thenReturn(Optional.of(new Project(null, null, null, null, null)));
 
                 projectService.updateProject(project);
 
@@ -120,8 +126,12 @@ class ProjectServiceTest {
 
             private Stream<Arguments> allowedParametersValues() {
                 return Stream.of(
-                        Arguments.of(PROJECT_ID, "project", "Hello", LocalDate.now()),
-                        Arguments.of(PROJECT_ID, "project", "", LocalDate.now()));
+                        Arguments.of(PROJECT_ID, "project", "Hello", LocalDate.now(), ProjectStatus.EMPTY),
+                        Arguments.of(PROJECT_ID, "project", "Hello", LocalDate.now(), ProjectStatus.IN_PROGRESS),
+                        Arguments.of(PROJECT_ID, "project", "Hello", LocalDate.now(), ProjectStatus.DONE),
+                        Arguments.of(PROJECT_ID, "project", "Hello", LocalDate.now(), ProjectStatus.CANCELED),
+                        Arguments.of(PROJECT_ID, "project", "Hello", LocalDate.now(), ProjectStatus.READY_TO_START),
+                        Arguments.of(PROJECT_ID, "project", "", LocalDate.now(), ProjectStatus.EMPTY));
             }
         }
 
@@ -132,18 +142,19 @@ class ProjectServiceTest {
 
             @ParameterizedTest
             @MethodSource("notAllowedParametersValues")
-            void test_withNotAllowedValues(String projectId, String name, String description, LocalDate deadLine) {
+            void test_withNotAllowedValues(String projectId, String name, String description, LocalDate deadLine, ProjectStatus status) {
                 assertThrows(BadRequestException.class,
-                        () -> projectService.updateProject(new Project(projectId, name, description, deadLine)));
+                        () -> projectService.updateProject(new Project(projectId, name, description, deadLine, status)));
             }
 
             private Stream<Arguments> notAllowedParametersValues() {
                 return Stream.of(
-                        Arguments.of(PROJECT_ID, "", "Description", LocalDate.now()),
-                        Arguments.of(PROJECT_ID, null, "Description", LocalDate.now()),
-                        Arguments.of(PROJECT_ID, "project", null, LocalDate.now()),
-                        Arguments.of(PROJECT_ID, "project", "Description", null),
-                        Arguments.of(null, "project", "Description", LocalDate.now()));
+                        Arguments.of(PROJECT_ID, "", "Description", LocalDate.now(), ProjectStatus.EMPTY),
+                        Arguments.of(PROJECT_ID, null, "Description", LocalDate.now(), ProjectStatus.EMPTY),
+                        Arguments.of(PROJECT_ID, "project", null, LocalDate.now(), ProjectStatus.EMPTY),
+                        Arguments.of(PROJECT_ID, "project", "Description", null, ProjectStatus.EMPTY),
+                        Arguments.of(PROJECT_ID, "project", "Description", null, null),
+                        Arguments.of(null, "project", "Description", LocalDate.now(), ProjectStatus.EMPTY));
             }
 
             @Test
@@ -151,7 +162,7 @@ class ProjectServiceTest {
                 when(projectRepository.findById(PROJECT_ID))
                         .thenReturn(Optional.empty());
                 assertThrows(ProjectNotFoundException.class,
-                        () -> projectService.updateProject(new Project(PROJECT_ID, "project", "Hello", LocalDate.now())));
+                        () -> projectService.updateProject(new Project(PROJECT_ID, "project", "Hello", LocalDate.now(), ProjectStatus.EMPTY)));
             }
         }
 

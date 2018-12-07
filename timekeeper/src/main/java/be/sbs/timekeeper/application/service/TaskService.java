@@ -35,14 +35,14 @@ public class TaskService {
     }
 
     public void addTask(Task task) {
-        FieldConverter.convertTaskFields(task);
+        FieldConverter.setDefaultTaskFields(task);
         FieldValidator.validatePOSTTask(task);
         taskRepository.insert(task);
     }
 
     public void applyPatch(String taskId, PatchOperation patchOperation) {
         FieldValidator.validatePATCHTask(patchOperation);
-        FieldConverter.convertTaskFields(patchOperation);
+        FieldConverter.setDefaultTaskFields(patchOperation);
         taskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Cannot patch task: " + taskId + ". the task doesn't exist!"));
         taskRepositoryCustom.saveOperation(taskId, patchOperation);

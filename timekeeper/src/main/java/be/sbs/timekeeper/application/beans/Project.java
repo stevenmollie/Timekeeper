@@ -1,6 +1,6 @@
 package be.sbs.timekeeper.application.beans;
 
-
+import be.sbs.timekeeper.application.enums.ProjectStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
@@ -18,15 +18,17 @@ public class Project {
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate deadLine;
+    private ProjectStatus status;
 
     public Project() {
     }
 
-    public Project(String id, String name, String description, LocalDate deadLine) {
+    public Project(String id, String name, String description, LocalDate deadLine, ProjectStatus status) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.deadLine = deadLine;
+        this.status = status;
     }
 
     public String getId() {
@@ -59,6 +61,14 @@ public class Project {
 
     public void setDeadLine(LocalDate deadLine) {
         this.deadLine = deadLine;
+    }
+
+    public ProjectStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ProjectStatus status) {
+        this.status = status;
     }
 
     @Override

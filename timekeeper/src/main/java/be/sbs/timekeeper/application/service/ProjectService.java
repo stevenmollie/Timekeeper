@@ -3,7 +3,10 @@ package be.sbs.timekeeper.application.service;
 import be.sbs.timekeeper.application.beans.Project;
 import be.sbs.timekeeper.application.exception.ProjectNotFoundException;
 import be.sbs.timekeeper.application.repository.ProjectRepository;
+import be.sbs.timekeeper.application.repository.ProjectRepositoryCustom;
+import be.sbs.timekeeper.application.valueobjects.FieldConverter;
 import be.sbs.timekeeper.application.valueobjects.FieldValidator;
+import be.sbs.timekeeper.application.valueobjects.PatchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +17,8 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private ProjectRepositoryCustom projectRepositoryCustom;
 
     public Project getById(String projectId) {
         return projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project not found"));
@@ -25,6 +30,7 @@ public class ProjectService {
 
     public void addProject(Project project) {
         FieldValidator.validatePOSTProject(project);
+        FieldConverter.setDefaultProjectFields(project);
         projectRepository.insert(project);
     }
 
@@ -35,4 +41,11 @@ public class ProjectService {
         projectRepository.save(project);
     }
 
+    public void applyPatch(String projectId, PatchOperation patchOperations) {
+        FieldValidator.validatePATCHProject(patchOperations);
+        FieldConverter.convertProjectFields(patchOperations);
+        projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Cannot update project: " + projectId + ". the project doesn't exist!"));
+        projectRepositoryCustom.saveOperation(projectId, patchOperations);
+    }
 }

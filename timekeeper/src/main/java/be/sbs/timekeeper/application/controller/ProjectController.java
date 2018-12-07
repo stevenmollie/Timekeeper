@@ -4,6 +4,7 @@ package be.sbs.timekeeper.application.controller;
 import be.sbs.timekeeper.application.beans.Project;
 import be.sbs.timekeeper.application.enums.ProjectStatus;
 import be.sbs.timekeeper.application.service.ProjectService;
+import be.sbs.timekeeper.application.valueobjects.PatchOperation;
 import be.sbs.timekeeper.application.valueobjects.ProjectStatusListResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/Project")
+@RequestMapping({"/Project", "/project"})
 public class ProjectController {
 
     @Autowired
@@ -25,6 +26,7 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
+    //---- GET ------------------------------------------------------------------------------------
     @GetMapping(path = "/{projectId}")
     public Project getProjectById(@PathVariable String projectId){
         return projectService.getById(projectId);
@@ -41,17 +43,24 @@ public class ProjectController {
         return projectService.getAll();
     }
 
+    //---- POST -----------------------------------------------------------------------------------
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void addProject(@RequestBody Project project){
         projectService.addProject(project);
     }
 
+    //---- PUT ------------------------------------------------------------------------------------
     @PutMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void updateProject(@RequestBody Project project) {
         projectService.updateProject(project);
     }
 
-
+    //---- PATCH ----------------------------------------------------------------------------------
+    @PatchMapping(path = "/{projectId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void applyPatch(@PathVariable String projectId, @RequestBody PatchOperation patchOperations) {
+        projectService.applyPatch(projectId, patchOperations);
+    }
 }
