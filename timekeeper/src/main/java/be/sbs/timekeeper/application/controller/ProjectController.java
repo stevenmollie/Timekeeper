@@ -63,4 +63,11 @@ public class ProjectController {
     public void applyPatch(@PathVariable String projectId, @RequestBody PatchOperation patchOperations) {
         projectService.applyPatch(projectId, patchOperations);
     }
+    
+    //---- DELETE ----------------------------------------------------------------------------------
+    @DeleteMapping(path = "/{projectId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProject(@PathVariable String projectId) {
+    	projectService.deleteProject(projectId);
+    }
 }

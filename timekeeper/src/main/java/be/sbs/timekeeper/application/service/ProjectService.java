@@ -1,9 +1,11 @@
 package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.Project;
+import be.sbs.timekeeper.application.beans.Task;
 import be.sbs.timekeeper.application.exception.ProjectNotFoundException;
 import be.sbs.timekeeper.application.repository.ProjectRepository;
 import be.sbs.timekeeper.application.repository.ProjectRepositoryCustom;
+import be.sbs.timekeeper.application.repository.TaskRepositoryCustom;
 import be.sbs.timekeeper.application.valueobjects.FieldConverter;
 import be.sbs.timekeeper.application.valueobjects.FieldValidator;
 import be.sbs.timekeeper.application.valueobjects.PatchOperation;
@@ -19,6 +21,8 @@ public class ProjectService {
     private ProjectRepository projectRepository;
     @Autowired
     private ProjectRepositoryCustom projectRepositoryCustom;
+    @Autowired
+    private TaskService taskService;
 
     public Project getById(String projectId) {
         return projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project not found"));
@@ -47,5 +51,15 @@ public class ProjectService {
         projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Cannot update project: " + projectId + ". the project doesn't exist!"));
         projectRepositoryCustom.saveOperation(projectId, patchOperations);
+    }
+    
+    public void deleteProject(String projectId) {
+    	projectRepository.findById(projectId)
+        .orElseThrow(() -> new ProjectNotFoundException("Cannot update project: " + projectId + ". the project doesn't exist!"));
+    	
+    	//delete the project itself
+    	projectRepository.deleteById(projectId);
+    	
+    	taskService.deleteTasksFromProject(projectId);
     }
 }
