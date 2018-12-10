@@ -6,6 +6,8 @@ import be.sbs.timekeeper.application.enums.ProjectStatus;
 import be.sbs.timekeeper.application.exception.BadRequestException;
 import be.sbs.timekeeper.application.exception.ProjectNotFoundException;
 import be.sbs.timekeeper.application.repository.ProjectRepository;
+import be.sbs.timekeeper.application.repository.ProjectRepositoryCustom;
+import be.sbs.timekeeper.application.valueobjects.PatchOperation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,11 +36,19 @@ class ProjectServiceTest {
     @Mock
     private ProjectRepository projectRepository;
 
+    @Mock
+    private ProjectRepositoryCustom projectRepositoryCustom;
+
     @InjectMocks
     private ProjectService projectService;
 
     @Captor
     private ArgumentCaptor<Project> projectArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<PatchOperation> patchOperationArgumentCaptor;
+
+
 
     private static final String PROJECT_ID = "123456abc";
 
@@ -167,5 +177,82 @@ class ProjectServiceTest {
         }
 
     }
+
+    @Nested
+    @TestInstance(PER_CLASS)
+    @DisplayName("Patch Project tests")
+    class PatchProjectTests {
+
+        @Nested
+        @TestInstance(PER_CLASS)
+        @DisplayName("Basic patching tests with allowed values")
+        class BasicTests {
+
+            @ParameterizedTest
+            @MethodSource("allowedParametersValues")
+            void test_withAllowedValues(String op, String path, String value) {
+                PatchOperation operation = new PatchOperation(op, path, value);
+
+                when(projectRepository.findById(PROJECT_ID))
+                        .thenReturn(Optional.of(new Project(null, null, null, null, null)));
+                projectService.applyPatch(PROJECT_ID, operation);
+
+                verify(projectRepositoryCustom).saveOperation(any(String.class), patchOperationArgumentCaptor.capture());
+                assertThat(patchOperationArgumentCaptor.getValue()).isEqualToComparingFieldByField(operation);
+
+                reset(projectRepositoryCustom);
+            }
+
+            private Stream<Arguments> allowedParametersValues() {
+                return Stream.of(
+                        Arguments.of("replace", "/deadLine", "1980-08-22"),
+                        Arguments.of("replace", "/description", ""),
+                        Arguments.of("replace", "/description", "jhbc sdkjhcbzieu"),
+                        Arguments.of("replace", "/status", ProjectStatus.EMPTY.name()),
+                        Arguments.of("replace", "/status", ProjectStatus.DONE.name()),
+                        Arguments.of("replace", "/status", ProjectStatus.READY_TO_START.name()),
+                        Arguments.of("replace", "/status", ProjectStatus.CANCELED.name()),
+                        Arguments.of("replace", "/status", ProjectStatus.IN_PROGRESS.name()),
+                        Arguments.of("replace", "/name", "abcde")
+                );
+            }
+        }
+
+        @Nested
+        @TestInstance(PER_CLASS)
+        @DisplayName("Patching tests that throw Exceptions")
+        class ExceptionsTests {
+
+            @ParameterizedTest
+            @MethodSource("notAllowedParametersValues")
+            void test_withNotAllowedValues(String op, String path, String value, ProjectStatus statusExistingProject) {
+                when(projectRepository.findById(PROJECT_ID))
+                        .thenReturn(Optional.of(new Project(null, null, null, null, statusExistingProject)));
+                assertThrows(BadRequestException.class,
+                        () -> projectService.applyPatch(PROJECT_ID, new PatchOperation(op, path, value)));
+            }
+
+            private Stream<Arguments> notAllowedParametersValues() {
+                return Stream.of(
+                        Arguments.of("replace", "/deadLine", "2019-12-21", ProjectStatus.DONE),
+                        Arguments.of("replace", "/name", "2019-12-21", ProjectStatus.DONE),
+                        Arguments.of("replace", "/description", "2019-12-21", ProjectStatus.DONE),
+                        Arguments.of("replace", "/id", "2019-12-21", ProjectStatus.IN_PROGRESS),
+                        Arguments.of("add", "/id", "2019-12-21", ProjectStatus.IN_PROGRESS),
+                        Arguments.of("replace", "/deadLine", "21-12-2019", ProjectStatus.IN_PROGRESS)
+                );
+            }
+
+            @Test
+            void test_ProjectNotFound() {
+                when(projectRepository.findById(PROJECT_ID))
+                        .thenReturn(Optional.empty());
+                assertThrows(ProjectNotFoundException.class,
+                        () -> projectService.updateProject(new Project(PROJECT_ID, "project", "Hello", LocalDate.now(), ProjectStatus.EMPTY)));
+            }
+        }
+
+    }
+
 
 }

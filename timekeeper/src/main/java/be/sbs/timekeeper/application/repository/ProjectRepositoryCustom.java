@@ -22,10 +22,7 @@ public class ProjectRepositoryCustom {
     public void saveOperation(String projectId, PatchOperation operation) {
         Query query = Query.query(Criteria.where("id").is(projectId));
         Update update = new Update().set(operation.getPath().substring(1), operation.getValue());
-        System.out.println(query.toString());
-        System.out.println("update = " + update.toString());
         UpdateResult updateResult = mongoOperations.updateFirst(query, update, Project.class);
-        System.out.println("updateResult.toString() = " + updateResult.toString());
         if (!updateResult.wasAcknowledged()) {
             throw new MongoException("Could not add operation " + operation + " to project " + projectId);
         }
