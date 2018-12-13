@@ -66,7 +66,7 @@ public class ProjectService {
 
     public void deleteProject(String projectId) {
     	projectRepository.findById(projectId)
-        .orElseThrow(() -> new ProjectNotFoundException("Cannot update project: " + projectId + ". the project doesn't exist!"));
+        .orElseThrow(() -> new ProjectNotFoundException("Cannot delete project: " + projectId + ". the project doesn't exist!"));
 
         //delete the project itself
     	projectRepository.deleteById(projectId);
