@@ -53,7 +53,7 @@ public class ProjectService {
                 .orElseThrow(() -> new ProjectNotFoundException("Cannot update project: " + projectId + ". the project doesn't exist!"));
         FieldValidator.validatePATCHProject(patchOperations);
         if (isDoneAndNotValidOperation(patchOperations, existingProject)) {
-            throw new BadRequestException("Cannot PATCH the dead line of a DONE project!");
+            throw new BadRequestException("Cannot PATCH the requested fields of a DONE project!");
         }
         FieldConverter.convertProjectFields(patchOperations);
         projectRepositoryCustom.saveOperation(projectId, patchOperations);
