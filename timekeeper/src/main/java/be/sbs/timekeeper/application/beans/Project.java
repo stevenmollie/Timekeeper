@@ -4,6 +4,7 @@ import be.sbs.timekeeper.application.enums.ProjectStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -19,8 +20,10 @@ public class Project {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate deadLine;
     private ProjectStatus status;
+    @Transient
+    private int numberOfTasks;
 
-    public Project() {
+	public Project() {
     }
 
     public Project(String id, String name, String description, LocalDate deadLine, ProjectStatus status) {
@@ -70,6 +73,14 @@ public class Project {
     public void setStatus(ProjectStatus status) {
         this.status = status;
     }
+    
+    public int getNumberOfTasks() {
+		return numberOfTasks;
+	}
+
+	public void setNumberOfTasks(int numberOfTasks) {
+		this.numberOfTasks = numberOfTasks;
+	}
 
     @Override
     public String toString() {
