@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping({"/Project", "/project"})
+@RequestMapping
 public class ProjectController {
 
     @Autowired
@@ -27,45 +27,45 @@ public class ProjectController {
     }
 
     //---- GET ------------------------------------------------------------------------------------
-    @GetMapping(path = "/{projectId}")
+    @GetMapping(path = "/project/{projectId}")
     public Project getProjectById(@PathVariable String projectId){
         return projectService.getById(projectId);
     }
 
-    @GetMapping(path = "/_statuses")
+    @GetMapping(path = "/project/_statuses")
     public ProjectStatusListResponse getListOfStatuses() {
         return new ProjectStatusListResponse(Arrays.asList(ProjectStatus.values()));
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(path = "/projects", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public List<Project> getAll(){
         return projectService.getAll();
     }
 
     //---- POST -----------------------------------------------------------------------------------
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(path = "/project", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void addProject(@RequestBody Project project){
         projectService.addProject(project);
     }
 
     //---- PUT ------------------------------------------------------------------------------------
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PutMapping(path = "/project", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void updateProject(@RequestBody Project project) {
         projectService.updateProject(project);
     }
 
     //---- PATCH ----------------------------------------------------------------------------------
-    @PatchMapping(path = "/{projectId}")
+    @PatchMapping(path = "/project/{projectId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void applyPatch(@PathVariable String projectId, @RequestBody PatchOperation patchOperations) {
         projectService.applyPatch(projectId, patchOperations);
     }
     
     //---- DELETE ----------------------------------------------------------------------------------
-    @DeleteMapping(path = "/{projectId}")
+    @DeleteMapping(path = "/project/{projectId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProject(@PathVariable String projectId) {
     	projectService.deleteProject(projectId);
