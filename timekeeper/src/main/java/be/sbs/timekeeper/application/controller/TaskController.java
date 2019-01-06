@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping(path = {"/Task", "/task"})
+@RequestMapping
 public class TaskController {
 	
 	private final TaskService taskService;
@@ -32,14 +32,14 @@ public class TaskController {
 
 
     //---- GET ------------------------------------------------------------------------------------
-	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(path = "/tasks", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public List<Task> getAll(){
 		List<Task> all = taskService.getAll();
 		return all;
 	}
-	
-	@GetMapping(path = "/GetTasksFromProject/{projectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+
+    @GetMapping(path = "/tasks/{projectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public List<Task> getAllTaskFromProject(@PathVariable String projectId){
 		//check if project exists
@@ -49,24 +49,24 @@ public class TaskController {
 		return taskService.getAllTasksFromProject(p);
 	}
 
-	@GetMapping(path = "/{taskId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(path = "/task/{taskId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public Task findById(@PathVariable String taskId) {
 		return taskService.findById(taskId);
 	}
 
-    @GetMapping(path = "/_statuses")
+    @GetMapping(path = "/task/_statuses")
     public TaskStatusListResponse getListOfStatuses() {
         return new TaskStatusListResponse(Arrays.asList(TaskStatus.values()));
     }
 
-    @GetMapping(path = "/_priorities")
+    @GetMapping(path = "/task/_priorities")
     public PrioritiesListResponse getListOfPriorities() {
         return new PrioritiesListResponse(Arrays.asList(Priority.values()));
     }
 
     //---- POST -----------------------------------------------------------------------------------
-    @PostMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(path = "/task", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void addTAsk(@RequestBody Task task) {
         //TODO this not right, a method result should always be used
@@ -76,21 +76,21 @@ public class TaskController {
     }
 
     //---- PATCH ----------------------------------------------------------------------------------
-    @PatchMapping(path = "/{taskId}")
+    @PatchMapping(path = "/task/{taskId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
     public void applyPatch(@PathVariable String taskId, @RequestBody PatchOperation patchOperations) {
         taskService.applyPatch(taskId, patchOperations);
     }
 
     //---- PUT ------------------------------------------------------------------------------------
-    @PutMapping
+    @PutMapping(path = "/task")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void updateTask(@RequestBody Task task) {
         taskService.updateTask(task);
     }
 
     //---- DELETE ---------------------------------------------------------------------------------
-    @DeleteMapping(path = "/{taskId}")
+    @DeleteMapping(path = "/task/{taskId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable String taskId) {
         taskService.deleteTask(taskId);

@@ -45,6 +45,7 @@ public class ProjectService {
         FieldValidator.validatePUTProject(project);
         projectRepository.findById(project.getId())
                 .orElseThrow(() -> new ProjectNotFoundException("Cannot update project: " + project.getId() + ". the project doesn't exist!"));
+        System.out.println("project.toString() = " + project.toString());
         projectRepository.save(project);
     }
 
@@ -72,5 +73,10 @@ public class ProjectService {
     	projectRepository.deleteById(projectId);
 
         taskService.deleteTasksFromProject(projectId);
+    }
+
+    public int add(Integer numberA, Integer numberB) {
+        if (numberA == null || numberB == null) throw new NumberFormatException();
+        return numberA + numberB;
     }
 }
