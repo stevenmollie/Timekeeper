@@ -18,8 +18,7 @@ public class PrioritiesListResponse {
         return new Instance<>(priority, Priority.class);
     }
 
-    public List<Instance<Priority>> getProjectStatuses() {
+    public List<Instance<Priority>> getPriorities() {
         return priorities;
     }
-
 }
