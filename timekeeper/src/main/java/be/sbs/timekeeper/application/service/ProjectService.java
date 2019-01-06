@@ -32,7 +32,11 @@ public class ProjectService {
     }
 
     public List<Project> getAll() {
-        return projectRepository.findAll();
+        List<Project> projects = projectRepository.findAll();
+        for(Project p: projects) {
+        	p.setNumberOfTasks(taskService.getAllTasksFromProject(p).size());
+        }
+        return projects;
     }
 
     public void addProject(Project project) {
