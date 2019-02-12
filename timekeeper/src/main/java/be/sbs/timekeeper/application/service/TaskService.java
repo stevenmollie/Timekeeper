@@ -21,6 +21,9 @@ public class TaskService {
 
     @Autowired
     private TaskRepositoryCustom taskRepositoryCustom;
+    
+    @Autowired
+    private ProjectService projectService;
 
     public List<Task> getAll() {
         return taskRepository.findAll();
@@ -37,6 +40,8 @@ public class TaskService {
     public void addTask(Task task) {
         FieldConverter.setDefaultTaskFields(task);
         FieldValidator.validatePOSTTask(task);
+        //check if project exists
+        projectService.getById(task.getProjectId());
         taskRepository.insert(task);
     }
 
@@ -52,6 +57,8 @@ public class TaskService {
         FieldValidator.validatePUTTask(task);
         taskRepository.findById(task.getId())
                 .orElseThrow(() -> new TaskNotFoundException("Cannot update task: " + task.getId() + ". the task doesn't exist!"));
+        //check if project exists
+        projectService.getById(task.getProjectId());
         taskRepository.save(task);
     }
 
@@ -61,6 +68,8 @@ public class TaskService {
     }
     
     public void deleteTasksFromProject(String projectId) {
+    	//check if project exists
+    	projectService.getById(projectId);
     	taskRepositoryCustom.deleteTasksFromProject(projectId);
     }
 }
