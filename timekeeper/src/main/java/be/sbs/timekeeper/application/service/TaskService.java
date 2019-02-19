@@ -2,6 +2,7 @@ package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.Project;
 import be.sbs.timekeeper.application.beans.Task;
+import be.sbs.timekeeper.application.enums.ProjectStatus;
 import be.sbs.timekeeper.application.exception.TaskNotFoundException;
 import be.sbs.timekeeper.application.repository.TaskRepository;
 import be.sbs.timekeeper.application.repository.TaskRepositoryCustom;
@@ -41,8 +42,14 @@ public class TaskService {
         FieldConverter.setDefaultTaskFields(task);
         FieldValidator.validatePOSTTask(task);
         //check if project exists
-        projectService.getById(task.getProjectId());
+        Project project = projectService.getById(task.getProjectId());
         taskRepository.insert(task);
+        
+        //change the status of the project
+        if(project.getStatus() != ProjectStatus.IN_PROGRESS) {
+        	project.setStatus(ProjectStatus.READY_TO_START);
+        	projectService.updateProject(project);
+        }
     }
 
     public void applyPatch(String taskId, PatchOperation patchOperation) {
