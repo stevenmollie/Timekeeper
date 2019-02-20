@@ -43,16 +43,16 @@ public class TaskController {
 	@ResponseStatus(HttpStatus.OK)
 	public List<Task> getAllTaskFromProject(@PathVariable String projectId){
 		//check if project exists
-		Project p = projectService.getById(projectId);
+		Project project = projectService.getById(projectId);
 
 		//if project exists get all the tasks from the project
-		return taskService.getAllTasksFromProject(p);
+		return taskService.getAllTasksFromProject(project);
 	}
 
     @GetMapping(path = "/task/{taskId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseStatus(HttpStatus.OK)
-	public Task findById(@PathVariable String taskId) {
-		return taskService.findById(taskId);
+	public Task getById(@PathVariable String taskId) {
+		return taskService.getById(taskId);
 	}
 
     @GetMapping(path = "/task/_statuses")
@@ -68,9 +68,10 @@ public class TaskController {
     //---- POST -----------------------------------------------------------------------------------
     @PostMapping(path = "/task", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public void addTAsk(@RequestBody Task task) {
-        //TODO this not right, a method result should always be used
+    public void addTask(@RequestBody Task task) {
         if (task.getProjectId() == null) throw new BadRequestException("The project id cannot be null");
+    	
+        //TODO this not right, a method result should always be used
         projectService.getById(task.getProjectId());
         taskService.addTask(task);
     }

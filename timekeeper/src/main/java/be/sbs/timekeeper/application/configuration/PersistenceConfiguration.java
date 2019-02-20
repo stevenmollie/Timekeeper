@@ -21,7 +21,9 @@ public class PersistenceConfiguration {
                         new LocalDateTimeToStringConverter(),
                         new StringToLocalDateTimeConverter(),
                         new LocalDateToStringConverter(),
-                        new StringToLocalDateConverter()
+                        new StringToLocalDateConverter(),
+                        new LocalTimeToStringConverter(),
+                        new StringToLocalTimeConverter()
                 ));
         return new MongoCustomConversions(converters);
     }

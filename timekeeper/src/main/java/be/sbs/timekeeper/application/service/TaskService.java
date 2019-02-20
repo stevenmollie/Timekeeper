@@ -2,6 +2,7 @@ package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.Project;
 import be.sbs.timekeeper.application.beans.Task;
+import be.sbs.timekeeper.application.enums.TaskStatus;
 import be.sbs.timekeeper.application.exception.TaskNotFoundException;
 import be.sbs.timekeeper.application.repository.TaskRepository;
 import be.sbs.timekeeper.application.repository.TaskRepositoryCustom;
@@ -26,11 +27,11 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public List<Task> getAllTasksFromProject(Project p) {
-        return taskRepositoryCustom.findTasksByProjectId(p.getId());
+    public List<Task> getAllTasksFromProject(Project project) {
+        return taskRepositoryCustom.findTasksByProjectId(project.getId());
     }
 
-    public Task findById(String taskId) {
+    public Task getById(String taskId) {
         return taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task not found"));
     }
 
@@ -39,10 +40,10 @@ public class TaskService {
         FieldValidator.validatePOSTTask(task);
         taskRepository.insert(task);
     }
-
+    
     public void applyPatch(String taskId, PatchOperation patchOperation) {
         FieldValidator.validatePATCHTask(patchOperation);
-        FieldConverter.setDefaultTaskFields(patchOperation);
+        FieldConverter.convertTaskFields(patchOperation);
         taskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Cannot patch task: " + taskId + ". the task doesn't exist!"));
         taskRepositoryCustom.saveOperation(taskId, patchOperation);
@@ -63,4 +64,8 @@ public class TaskService {
     public void deleteTasksFromProject(String projectId) {
     	taskRepositoryCustom.deleteTasksFromProject(projectId);
     }
+
+	public void setTaskStatus(String taskId, TaskStatus taskStatus) {
+		taskRepositoryCustom.updateTaskStatus(taskId, taskStatus);		
+	}
 }

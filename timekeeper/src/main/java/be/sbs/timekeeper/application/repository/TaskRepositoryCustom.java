@@ -1,6 +1,7 @@
 package be.sbs.timekeeper.application.repository;
 
 import be.sbs.timekeeper.application.beans.Task;
+import be.sbs.timekeeper.application.enums.TaskStatus;
 import be.sbs.timekeeper.application.valueobjects.PatchOperation;
 import com.mongodb.MongoException;
 import com.mongodb.client.result.UpdateResult;
@@ -40,4 +41,13 @@ public class TaskRepositoryCustom {
     	query.addCriteria(Criteria.where("projectId").is(projectId));
     	mongoOperations.findAllAndRemove(query, Task.class);
     }
+
+	public void updateTaskStatus(String taskId, TaskStatus taskStatus) {
+		Query query = Query.query(Criteria.where("id").is(taskId));
+		Update update = new Update().set("status", taskStatus.name());
+		UpdateResult updateResult = mongoOperations.updateFirst(query, update, Task.class);
+		if (!updateResult.wasAcknowledged()) {
+			throw new MongoException("Could not update task status to " + taskStatus.name() + " in task " + taskId);
+		}
+	}
 }

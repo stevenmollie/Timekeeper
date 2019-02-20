@@ -2,6 +2,8 @@ package be.sbs.timekeeper.application.valueobjects;
 
 import be.sbs.timekeeper.application.beans.Project;
 import be.sbs.timekeeper.application.beans.Task;
+import be.sbs.timekeeper.application.beans.Session;
+import be.sbs.timekeeper.application.enums.Priority;
 import be.sbs.timekeeper.application.enums.ProjectStatus;
 import be.sbs.timekeeper.application.enums.TaskStatus;
 import be.sbs.timekeeper.application.exception.BadRequestException;
@@ -11,12 +13,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class FieldValidator {
 
+	private static final List<String> PATCHABLE_FIELDS_FOR_SESSIONS = Arrays.asList("/startTime", "/endTime", "/workTime");
     private static final List<String> PATCHABLE_FIELDS_FOR_TASKS = Arrays.asList("/currentTime", "/priority", "/status");
     private static final List<String> PATCHABLE_FIELDS_FOR_PROJECTS = Arrays.asList("/deadLine", "/name", "/description", "/status");
     private static final List<String> PERMITTED_PATCH_OP = Collections.singletonList("replace");
@@ -36,6 +40,56 @@ public class FieldValidator {
         }
     }
 
+    
+    //---Validators for Session
+    
+    public static void validatePUTSession(Session session) {
+    	//modifying sessions linked to tasks should always be allowed, regardless of task status
+        if (session.getId() == null
+                || session.getTaskId() == null
+               // || session.getUserId() == null
+                || session.getStartTime() == null
+                || session.getEndTime() == null
+                || session.getWorkTime() == null)
+            throw new BadRequestException("Update not permitted for these values.");
+    }
+
+    public static void validatePOSTSession(Session session, TaskStatus taskStatus) {
+        if (session.getTaskId() == null
+               // || session.getUserId() == null
+                || session.getId() != null) {
+            throw new BadRequestException("Cannot create " + session.toString());
+        }
+        if(taskStatus == TaskStatus.DONE || taskStatus == TaskStatus.CANCELED) {
+    		throw new BadRequestException("Cannot create session for a task that has the status " + taskStatus.name());
+    	}
+    }
+
+    public static void validatePATCHSession(PatchOperation patchOperation) {
+        if (!isValidSessionPatchRequest(patchOperation))
+            throw new BadRequestException("Patch not permitted for these values.");
+    }
+
+    private static boolean isValidSessionPatchRequest(PatchOperation operation) {
+        return allowedFieldsArePresent(operation, PATCHABLE_FIELDS_FOR_SESSIONS)
+                && valueOfSessionPatchRequestIsValid(operation);
+    }
+
+    private static boolean valueOfSessionPatchRequestIsValid(PatchOperation operation) {
+        switch (operation.getPath()) {
+        	case "/startTime":
+            case "/endTime":
+                return isValidDateFormat(DateType.DATE_AND_TIME, operation.getValue());
+            case "/workTime":
+                return isValidTimeFormat(operation.getValue());
+        }
+        return false;
+    }
+    
+    
+
+	//---validators for Task
+    
     public static void validatePUTTask(Task task) {
         if (task.getId() == null
                 || task.getName() == null
@@ -55,7 +109,7 @@ public class FieldValidator {
                 || task.getProjectId() == null
                 || task.getStatus() != TaskStatus.READY_TO_START
                 || task.getPriority() == null)
-            throw new BadRequestException("cannot create " + task.toString());
+            throw new BadRequestException("Cannot create " + task.toString());
     }
 
     public static void validatePATCHTask(PatchOperation patchOperation) {
@@ -63,12 +117,33 @@ public class FieldValidator {
             throw new BadRequestException("Patch not permitted for these values.");
     }
 
-    private static boolean isValidTaskPatchRequest(PatchOperation operations) {
-        return PATCHABLE_FIELDS_FOR_TASKS.contains(operations.getPath())
-                && PERMITTED_PATCH_OP.contains(operations.getOp())
-                && operations.getValue() != null;
+    private static boolean isValidTaskPatchRequest(PatchOperation operation) {
+        return allowedFieldsArePresent(operation, PATCHABLE_FIELDS_FOR_TASKS)
+        		&& valueOfTaskPatchRequestIsValid(operation);
     }
 
+    private static boolean valueOfTaskPatchRequestIsValid(PatchOperation operation) {
+    	try {
+	        switch (operation.getPath()) {
+		        case "/currentTime":
+		            return isValidDateFormat(DateType.DATE_AND_TIME , operation.getValue());
+		        case "/priority":
+	        		Priority.fromString(operation.getValue());
+	        		return true;
+	            case "/status":
+                    TaskStatus.fromString(operation.getValue());
+                    return true;
+	        }
+    	} catch (Exception e) {
+    		return false;
+    	}
+        return false;
+    }
+    
+    
+    
+    //---validators for Project
+    
     public static void validatePUTProject(Project project) {
         if (project.getId() == null
                 || project.getName() == null
@@ -84,7 +159,7 @@ public class FieldValidator {
                 || project.getName().isEmpty()
                 || (project.getStatus() != null && project.getStatus() != ProjectStatus.EMPTY)
                 || project.getId() != null) {
-            throw new BadRequestException("cannot create " + project.toString());
+            throw new BadRequestException("Cannot create " + project.toString());
         }
     }
 
@@ -94,7 +169,7 @@ public class FieldValidator {
     }
 
     private static boolean isValidProjectPatchRequest(PatchOperation operation) {
-        return allowedFieldArePresent(operation)
+        return allowedFieldsArePresent(operation, PATCHABLE_FIELDS_FOR_PROJECTS)
                 && valueOfProjectPatchRequestIsValid(operation);
     }
 
@@ -116,11 +191,11 @@ public class FieldValidator {
         }
         return false;
     }
-
-    private static boolean allowedFieldArePresent(PatchOperation operation) {
-        return PATCHABLE_FIELDS_FOR_PROJECTS.contains(operation.getPath())
-                && PERMITTED_PATCH_OP.contains(operation.getOp())
-                && operation.getValue() != null;
+    
+    private static boolean allowedFieldsArePresent(PatchOperation operation, List<String> allowedOperations) {
+    	return allowedOperations.contains(operation.getPath())
+    			&& PERMITTED_PATCH_OP.contains(operation.getOp())
+    			&& operation.getValue() != null;
     }
 
     public static boolean isValidDateFormat(DateType type, String value) {
@@ -149,4 +224,15 @@ public class FieldValidator {
         }
         return false;
     }
+    
+    private static boolean isValidTimeFormat(String value) {
+    	DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    	try {
+			LocalTime lt = LocalTime.parse(value, timeFormatter);
+			String result = lt.format(timeFormatter);
+			return result.equals(value);
+    	} catch (DateTimeParseException exp) {
+    		return false;
+    	}
+	}
 }
