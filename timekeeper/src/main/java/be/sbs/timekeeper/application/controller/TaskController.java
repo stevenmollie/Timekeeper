@@ -41,12 +41,12 @@ public class TaskController {
 
     @GetMapping(path = "/tasks/{projectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseStatus(HttpStatus.OK)
-	public List<Task> getAllTaskFromProject(@PathVariable String projectId){
+	public List<Task> getAllTaskFromProject(@PathVariable String projectId, @RequestHeader(value = "token") String token){
 		//check if project exists
 		Project project = projectService.getById(projectId);
 
 		//if project exists get all the tasks from the project
-		return taskService.getAllTasksFromProject(project);
+		return taskService.getAllTasksFromProject(project, token);
 	}
 
     @GetMapping(path = "/task/{taskId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

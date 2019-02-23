@@ -9,6 +9,7 @@ import be.sbs.timekeeper.application.valueobjects.FieldConverter;
 import be.sbs.timekeeper.application.valueobjects.FieldValidator;
 import be.sbs.timekeeper.application.valueobjects.PatchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -27,6 +28,7 @@ public class ProjectService {
     @Autowired
     private TaskService taskService;
 
+    @Cacheable("Projects")
     public Project getById(String projectId) {
         return projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project not found"));
     }
@@ -34,7 +36,8 @@ public class ProjectService {
     public List<Project> getAll() {
         List<Project> projects = projectRepository.findAll();
         for(Project project: projects) {
-        	project.setNumberOfTasks(taskService.getAllTasksFromProject(project).size());
+            //TODO: out of comment
+        	//project.setNumberOfTasks(taskService.getAllTasksFromProject(project).size());
         }
         return projects;
     }

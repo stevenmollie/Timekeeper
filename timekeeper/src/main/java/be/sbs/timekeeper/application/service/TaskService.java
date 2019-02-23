@@ -10,7 +10,6 @@ import be.sbs.timekeeper.application.repository.TaskRepositoryCustom;
 import be.sbs.timekeeper.application.valueobjects.FieldConverter;
 import be.sbs.timekeeper.application.valueobjects.FieldValidator;
 import be.sbs.timekeeper.application.valueobjects.PatchOperation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,20 +17,26 @@ import java.util.List;
 @Service
 public class TaskService {
 
-    @Autowired
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
 
-    @Autowired
-    private TaskRepositoryCustom taskRepositoryCustom;
-    
-    @Autowired
-    private ProjectService projectService;
+    private final TaskRepositoryCustom taskRepositoryCustom;
+
+    private final ProjectService projectService;
+
+    private final UserService userService;
+
+    public TaskService(TaskRepository taskRepository, TaskRepositoryCustom taskRepositoryCustom, ProjectService projectService, UserService userService) {
+        this.taskRepository = taskRepository;
+        this.taskRepositoryCustom = taskRepositoryCustom;
+        this.projectService = projectService;
+        this.userService = userService;
+    }
 
     public List<Task> getAll() {
         return taskRepository.findAll();
     }
 
-    public List<Task> getAllTasksFromProject(Project project) {
+    public List<Task> getAllTasksFromProject(Project project, String token) {
         return taskRepositoryCustom.findTasksByProjectId(project.getId());
     }
 
