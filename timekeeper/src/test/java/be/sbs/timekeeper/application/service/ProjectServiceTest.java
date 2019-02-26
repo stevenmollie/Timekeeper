@@ -194,7 +194,7 @@ class ProjectServiceTest {
                 PatchOperation operation = new PatchOperation(op, path, value);
 
                 when(projectRepository.findById(PROJECT_ID))
-                        .thenReturn(Optional.of(new Project(null, null, null, null, null)));
+                        .thenReturn(Optional.of(new Project(null, null, null, null, ProjectStatus.READY_TO_START)));
                 projectService.applyPatch(PROJECT_ID, operation);
 
                 verify(projectRepositoryCustom).saveOperation(any(String.class), patchOperationArgumentCaptor.capture());

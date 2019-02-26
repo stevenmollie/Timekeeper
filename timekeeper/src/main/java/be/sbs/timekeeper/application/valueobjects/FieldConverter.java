@@ -20,7 +20,7 @@ public class FieldConverter {
     
     //TODO: check if this thing works with LocalDateTime fields or not
     public static void convertSessionFields(PatchOperation operation) {
-	    operation.setValue(operation.getValue());
+
     }
 	
     public static void convertTaskFields(PatchOperation operation) {

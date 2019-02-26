@@ -1,8 +1,10 @@
 package be.sbs.timekeeper.application.service;
 
 
+import be.sbs.timekeeper.application.beans.Project;
 import be.sbs.timekeeper.application.beans.Task;
 import be.sbs.timekeeper.application.enums.Priority;
+import be.sbs.timekeeper.application.enums.ProjectStatus;
 import be.sbs.timekeeper.application.enums.TaskStatus;
 import be.sbs.timekeeper.application.exception.BadRequestException;
 import be.sbs.timekeeper.application.exception.TaskNotFoundException;
@@ -47,6 +49,9 @@ class TaskServiceTest {
     @Mock
     private TaskRepositoryCustom taskRepositoryCustom;
 
+    @Mock
+    private ProjectService projectService;
+
     @InjectMocks
     private TaskService taskService;
 
@@ -71,6 +76,8 @@ class TaskServiceTest {
             void test_withAllowedValues(String id, String name, String description, String projectId, LocalDateTime currentTime, Priority priority, TaskStatus status) {
                 Task task = new Task(id, name, description, projectId, currentTime, priority, status);
 
+                when(projectService.getById(PROJECT_ID))
+                        .thenReturn(new Project(null, null, null, null, ProjectStatus.READY_TO_START));
                 taskService.addTask(task);
 
                 assertThat(task).isEqualToComparingFieldByField(interceptInsertInDB());
@@ -91,6 +98,8 @@ class TaskServiceTest {
             public void testDefaultPriority() {
                 Task task = new Task(null, "name", "", PROJECT_ID, LocalDateTime.now(), null, TaskStatus.READY_TO_START);
 
+                when(projectService.getById(PROJECT_ID))
+                        .thenReturn(new Project(null, null, null, null, ProjectStatus.READY_TO_START));
                 taskService.addTask(task);
 
                 assertThat(interceptInsertInDB().getPriority()).isEqualTo(Priority.MEDIUM);
@@ -98,8 +107,10 @@ class TaskServiceTest {
 
             @Test
             public void testDefaultStatus() {
-                Task task = new Task(null, "name", "", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM, null);
+                Task task = new Task(null, "name", "", PROJECT_ID, LocalDateTime.now(), Priority.MEDIUM, TaskStatus.READY_TO_START);
 
+                when(projectService.getById(PROJECT_ID))
+                        .thenReturn(new Project(null, null, null, null, ProjectStatus.READY_TO_START));
                 taskService.addTask(task);
 
                 assertThat(interceptInsertInDB().getStatus()).isEqualTo(TaskStatus.READY_TO_START);
