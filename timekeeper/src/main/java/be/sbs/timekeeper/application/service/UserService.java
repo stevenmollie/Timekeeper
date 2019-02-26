@@ -2,7 +2,7 @@ package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.User;
 import be.sbs.timekeeper.application.repository.UserRepository;
-import com.sun.deploy.security.UserDeclinedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class UserService {
                           .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         if(!passwordIsCorrect(inputUser.getPassword(), outputUser.getPassword())){
-            throw new UserDeclinedException("User not authenticated");
+            throw new BadCredentialsException("Incorrect password");
         }
 
         outputUser.setToken(createToken());

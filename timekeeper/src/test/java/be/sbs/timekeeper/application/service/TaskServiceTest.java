@@ -36,7 +36,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class TaskServiceTest {
+public class TaskServiceTest {
 
     private static final String PROJECT_ID = "123456abc";
     private static final String TASK_ID = "123456abc";

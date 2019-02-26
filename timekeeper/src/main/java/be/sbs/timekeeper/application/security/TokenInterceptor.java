@@ -1,12 +1,10 @@
 package be.sbs.timekeeper.application.security;
 
 import be.sbs.timekeeper.application.service.UserService;
-import com.sun.deploy.security.UserDeclinedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

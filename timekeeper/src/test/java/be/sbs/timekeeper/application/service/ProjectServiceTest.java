@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProjectServiceTest {
+public class ProjectServiceTest {
     @Mock
     private ProjectRepository projectRepository;
 
