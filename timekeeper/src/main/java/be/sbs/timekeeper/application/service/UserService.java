@@ -1,6 +1,8 @@
 package be.sbs.timekeeper.application.service;
 
+import be.sbs.timekeeper.application.beans.Session;
 import be.sbs.timekeeper.application.beans.User;
+import be.sbs.timekeeper.application.exception.UserNotFoundException;
 import be.sbs.timekeeper.application.repository.UserRepository;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +22,14 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public User getById(String userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+    
+    public User getByToken(String token) {
+    	return userRepository.findFirstByToken(token).orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+    
     public User login(User inputUser) {
         User outputUser = userRepository.findFirstByName(inputUser.getName(), inputUser.getPassword())
                           .orElseThrow(() -> new UsernameNotFoundException("User not found"));

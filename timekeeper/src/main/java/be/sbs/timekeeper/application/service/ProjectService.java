@@ -36,8 +36,7 @@ public class ProjectService {
     public List<Project> getAll() {
         List<Project> projects = projectRepository.findAll();
         for(Project project: projects) {
-            //TODO: out of comment
-        	//project.setNumberOfTasks(taskService.getAllTasksFromProject(project).size());
+        	project.setNumberOfTasks(taskService.getAllTasksFromProject(project).size());
         }
         return projects;
     }

@@ -36,7 +36,7 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public List<Task> getAllTasksFromProject(Project project, String token) {
+    public List<Task> getAllTasksFromProject(Project project) {
         return taskRepositoryCustom.findTasksByProjectId(project.getId());
     }
 

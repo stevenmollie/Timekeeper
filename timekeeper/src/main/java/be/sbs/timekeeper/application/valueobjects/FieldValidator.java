@@ -47,7 +47,7 @@ public class FieldValidator {
     	//modifying sessions linked to tasks should always be allowed, regardless of task status
         if (session.getId() == null
                 || session.getTaskId() == null
-               // || session.getUserId() == null
+                || session.getUserId() == null
                 || session.getStartTime() == null
                 || session.getEndTime() == null
                 || session.getWorkTime() == null)
@@ -56,7 +56,7 @@ public class FieldValidator {
 
     public static void validatePOSTSession(Session session, TaskStatus taskStatus) {
         if (session.getTaskId() == null
-               // || session.getUserId() == null
+                || session.getUserId() == null
                 || session.getId() != null) {
             throw new BadRequestException("Cannot create " + session.toString());
         }
