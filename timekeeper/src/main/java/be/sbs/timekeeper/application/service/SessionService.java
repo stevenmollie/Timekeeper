@@ -5,7 +5,9 @@ import be.sbs.timekeeper.application.enums.TaskStatus;
 import be.sbs.timekeeper.application.service.TaskService;
 import be.sbs.timekeeper.application.beans.Session;
 import be.sbs.timekeeper.application.exception.BadRequestException;
-//import be.sbs.timekeeper.application.beans.User;
+import be.sbs.timekeeper.application.exception.SessionAlreadyRunningException;
+import be.sbs.timekeeper.application.beans.User;
+import be.sbs.timekeeper.application.service.UserService;
 import be.sbs.timekeeper.application.exception.SessionNotFoundException;
 import be.sbs.timekeeper.application.repository.SessionRepository;
 import be.sbs.timekeeper.application.repository.SessionRepositoryCustom;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SessionService {
@@ -28,6 +31,9 @@ public class SessionService {
     
     @Autowired
     private TaskService taskService;
+    
+    @Autowired
+    private UserService userService;
 
     public List<Session> getAll() {
         return sessionRepository.findAll();
@@ -37,21 +43,31 @@ public class SessionService {
         return sessionRepositoryCustom.findSessionsByTaskId(task.getId());
     }
 
-    //uncomment me when User bean is created!
-    /*
     public List<Session> getAllSessionsFromUser(User user) {
     	return sessionRepositoryCustom.findSessionsByUserId(user.getId());
     }
-    */
+    
+    public List<Session> getAllSessionsFromTaskAndUser(Task task, User user) {
+    	return sessionRepositoryCustom.findSessionsByTaskIdAndUserId(task.getId(), user.getId());
+    }
     
     public Session getById(String sessionId) {
         return sessionRepository.findById(sessionId).orElseThrow(() -> new SessionNotFoundException("Session not found"));
     }
 
+    public Session getActiveSessionByUser(User user){
+    	return sessionRepositoryCustom.findActiveSessionByUserId(user.getId()).orElseThrow(() -> new SessionNotFoundException("No active session found"));
+    }
+    
     public void addSession(Session session) {
     	Task task = taskService.getById(session.getTaskId());
+    	User user = userService.getById(session.getUserId());
     	FieldValidator.validatePOSTSession(session, task.getStatus());
         FieldConverter.setDefaultSessionFields(session);
+        
+        sessionRepositoryCustom.findActiveSessionByUserId(session.getUserId())
+                               .ifPresent(s -> { throw new SessionAlreadyRunningException("There is already a session running for this user");});
+        
         Session newSession = sessionRepository.insert(session);
         if(newSession != null) {
         	//check if TaskStatus needs to be changed
@@ -61,8 +77,6 @@ public class SessionService {
         	}
         }
     }
-
-    //TODO: upon entering of session endTime, do stuff to end that session
     
     public void applyPatch(String sessionId, PatchOperation patchOperation) {
         FieldValidator.validatePATCHSession(patchOperation);

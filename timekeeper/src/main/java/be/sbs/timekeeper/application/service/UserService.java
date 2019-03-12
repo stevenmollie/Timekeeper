@@ -1,7 +1,6 @@
 package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.User;
-import be.sbs.timekeeper.application.exception.KakaPipi;
 import be.sbs.timekeeper.application.exception.UserAlreadyExistsException;
 import be.sbs.timekeeper.application.exception.UserNotActiveException;
 import be.sbs.timekeeper.application.exception.UserNotFoundException;
@@ -22,12 +21,20 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public User getById(String userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+    
+    public User getByToken(String token) {
+    	return userRepository.findFirstByToken(token).orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+    
     public User login(User inputUser) {
         User outputUser = userRepository.findFirstByName(inputUser.getName())
                           .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if(!passwordIsCorrect(inputUser.getPassword(), outputUser.getPassword())){
-            throw new KakaPipi("Incorrect password");
+            throw new UserNotFoundException("Incorrect password");
         }
         
         if(!outputUser.getActive()) {

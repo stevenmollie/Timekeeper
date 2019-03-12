@@ -46,7 +46,7 @@ public class TaskController {
 		Project project = projectService.getById(projectId);
 
 		//if project exists get all the tasks from the project
-		return taskService.getAllTasksFromProject(project, token);
+		return taskService.getAllTasksFromProject(project);
 	}
 
     @GetMapping(path = "/task/{taskId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

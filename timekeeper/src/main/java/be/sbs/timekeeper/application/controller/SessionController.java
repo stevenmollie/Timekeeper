@@ -2,11 +2,14 @@ package be.sbs.timekeeper.application.controller;
 
 import be.sbs.timekeeper.application.beans.Session;
 import be.sbs.timekeeper.application.beans.Task;
-import be.sbs.timekeeper.application.enums.TaskStatus;
+import be.sbs.timekeeper.application.beans.User;
 import be.sbs.timekeeper.application.exception.BadRequestException;
 import be.sbs.timekeeper.application.service.SessionService;
 import be.sbs.timekeeper.application.service.TaskService;
+import be.sbs.timekeeper.application.service.UserService;
 import be.sbs.timekeeper.application.valueobjects.PatchOperation;
+
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -19,27 +22,42 @@ import java.util.List;
 public class SessionController {
 	private final SessionService sessionService;
 	private final TaskService taskService;
+	private final UserService userService;
 
-	public SessionController(SessionService sessionService, TaskService taskService) {
+	public SessionController(SessionService sessionService, TaskService taskService, UserService userService) {
 		this.sessionService = sessionService;
 		this.taskService = taskService;
+		this.userService = userService;
 	}
 
     //---- GET ------------------------------------------------------------------------------------
     @GetMapping(path = "/sessions", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseStatus(HttpStatus.OK)
-	public List<Session> getAll(){
-		List<Session> all = sessionService.getAll();
-		return all;
-	}
-
-    @GetMapping(path = "/sessions/{taskId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseStatus(HttpStatus.OK)
-	public List<Session> getAllSessionsFromTask(@PathVariable String taskId){
-		//check if task exists, if not the following statement throws an exception and execution is interrupted
-    	Task task = taskService.getById(taskId);
-
-		return sessionService.getAllSessionsFromTask(task);
+	public List<Session> getAllSessions(@RequestParam(required = false) String taskId, 
+			@RequestParam(required = false) String userId){
+    	
+    	if(taskId == null && userId == null) {
+    		//no request parameters: get everything
+    		return sessionService.getAll();
+    	}else {
+    		if(taskId != null) {
+    			//check if task exists, if not the following statement throws an exception and execution is interrupted
+    	    	Task task = taskService.getById(taskId);
+    	    	
+    	    	if(userId != null) {
+    	    		User user = userService.getById(userId);
+    	    		return sessionService.getAllSessionsFromTaskAndUser(task, user);
+    	    	}else {
+    	    		return sessionService.getAllSessionsFromTask(task);
+    	    	}
+    		}
+    		
+    		//if we reach this code, then taskId wasn't passed, only userId was passed
+    			
+    		//check if user exists, if not the following statement will throw an exception
+    		User user = userService.getById(userId);
+    		return sessionService.getAllSessionsFromUser(user);
+    	}
 	}
 
     @GetMapping(path = "/session/{sessionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -47,18 +65,23 @@ public class SessionController {
 	public Session getById(@PathVariable String sessionId) {
 		return sessionService.getById(sessionId);
 	}
+    
+    @GetMapping(path = "/_active-session", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	public Session getActiveSession(@RequestHeader HttpHeaders headers){
+    	String token = headers.get("token").get(0);
+    	User user = userService.getByToken(token);
+    	return sessionService.getActiveSessionByUser(user);
+	}
 
     //---- POST -----------------------------------------------------------------------------------
     @PostMapping(path = "/session", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void addSession(@RequestBody Session session) {
     	if (session.getTaskId() == null) throw new BadRequestException("The taskId cannot be null");
+    	if (session.getUserId() == null) throw new BadRequestException("The userId cannot be null");
+    	User user = userService.getById(session.getUserId());
     	
-    	/*
-    	 * if (session.getUserId() == null) throw new BadRequestException("The userId cannot be null");
-    	 * User user = userService.getById(session.getUserId());
-    	 */
-        
         sessionService.addSession(session);
     }
 

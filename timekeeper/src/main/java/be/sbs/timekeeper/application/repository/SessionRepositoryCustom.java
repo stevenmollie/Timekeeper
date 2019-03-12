@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class SessionRepositoryCustom {
@@ -39,6 +40,18 @@ public class SessionRepositoryCustom {
     	return mongoOperations.find(query,  Session.class);
     }
 
+    public List<Session> findSessionsByTaskIdAndUserId(String taskId, String userId) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("taskId").is(taskId).and("userId").is(userId));
+		return mongoOperations.find(query,  Session.class);
+	}
+    
+    public Optional<Session> findActiveSessionByUserId(String userId) {
+    	Query query = new Query();
+    	query.addCriteria(Criteria.where("userId").is(userId).and("endTime").is(null));
+    	return Optional.ofNullable(mongoOperations.findOne(query, Session.class));
+    }
+    
     public void saveOperation(String sessionId, PatchOperation operation) {
         Query query = Query.query(Criteria.where("id").is(sessionId));
         Update update = new Update().set(operation.getPath().substring(1), operation.getValue());
