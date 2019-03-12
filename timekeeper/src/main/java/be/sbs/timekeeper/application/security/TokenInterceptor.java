@@ -15,8 +15,7 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
-        if(!request.getRequestURI().contains("/login")) {
+        if(!request.getRequestURI().contains("/login") && !request.getRequestURI().contains("/register") && !request.getRequestURI().contains("/error")) {
             String token = request.getHeader("Token");
 
             if (!userService.userAuthenticated(token)) {
@@ -26,6 +25,7 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
                 response.getWriter().close();
             }
         }
+        
         return super.preHandle(request, response, handler);
     }
 
