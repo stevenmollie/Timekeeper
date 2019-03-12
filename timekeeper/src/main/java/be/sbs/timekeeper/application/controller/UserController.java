@@ -4,7 +4,6 @@ import be.sbs.timekeeper.application.beans.User;
 import be.sbs.timekeeper.application.exception.UserNotFoundException;
 import be.sbs.timekeeper.application.service.UserService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,5 +23,14 @@ public class UserController {
             throw new UserNotFoundException("Username and password must be filled in");
         }
         return userService.login(user);
+    }
+    
+    @PostMapping("/register")
+    public User register(@RequestBody User user) {
+    	if(StringUtils.isBlank(user.getPassword()) || StringUtils.isBlank(user.getName())) {
+    		throw new UserNotFoundException("Username and password must be filled in");
+    	}
+    	
+    	return userService.register(user);
     }
 }

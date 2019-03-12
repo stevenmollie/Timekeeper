@@ -1,9 +1,11 @@
 package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.User;
+import be.sbs.timekeeper.application.exception.KakaPipi;
+import be.sbs.timekeeper.application.exception.UserAlreadyExistsException;
+import be.sbs.timekeeper.application.exception.UserNotActiveException;
+import be.sbs.timekeeper.application.exception.UserNotFoundException;
 import be.sbs.timekeeper.application.repository.UserRepository;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,18 +23,41 @@ public class UserService {
     }
 
     public User login(User inputUser) {
-        User outputUser = userRepository.findFirstByName(inputUser.getName(), inputUser.getPassword())
-                          .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User outputUser = userRepository.findFirstByName(inputUser.getName())
+                          .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if(!passwordIsCorrect(inputUser.getPassword(), outputUser.getPassword())){
-            throw new BadCredentialsException("Incorrect password");
+            throw new KakaPipi("Incorrect password");
+        }
+        
+        if(!outputUser.getActive()) {
+        	throw new UserNotActiveException("User not active");
         }
 
         outputUser.setToken(createToken());
 
         return userRepository.save(outputUser);
     }
+    
+    public User register(User inputUser) {
+    	checkIfUserExists(inputUser);
+    	
+    	inputUser.setPassword(passwordEncoder.encode(inputUser.getPassword()));
+    	inputUser.setActive(false);
+    	User outputUser = userRepository.insert(inputUser);
+    	return outputUser;
+    }
 
+	private void checkIfUserExists(User inputUser) {
+		userRepository.findFirstByName(inputUser.getName())
+    		.ifPresent(user -> throwUserExistsException());
+	}
+
+	private void throwUserExistsException() {
+		throw new UserAlreadyExistsException("User already exists");
+	}
+    
+    
     private boolean passwordIsCorrect(String inputPassword, String outputPassword) {
         return passwordEncoder.matches(inputPassword, outputPassword);
     }

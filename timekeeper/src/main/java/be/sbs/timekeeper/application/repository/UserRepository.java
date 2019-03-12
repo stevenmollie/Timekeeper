@@ -6,6 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User, String> {
-    Optional<User> findFirstByName(String name, String password);
+    Optional<User> findFirstByName(String name);
     Optional<User> findFirstByToken(String token);
 }

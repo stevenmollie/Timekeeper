@@ -1,6 +1,5 @@
 package be.sbs.timekeeper.application.beans;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.annotation.Id;
 
 
@@ -10,12 +9,16 @@ public class User {
     private String name;
     private String password;
     private String token;
+    private Boolean active;
+    private String email;
 
-    public User(String id, String name, String password, String token) {
+    public User(String id, String name, String password, String token, Boolean active, String email) {
         this.id = id;
         this.name = name;
         this.password = password;
         this.token = token;
+        this.active = active;
+        this.email = email;
     }
 
     public String getId() {
@@ -49,4 +52,20 @@ public class User {
     public void setToken(String token) {
         this.token = token;
     }
+
+	public boolean getActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
 }
