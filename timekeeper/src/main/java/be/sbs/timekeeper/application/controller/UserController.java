@@ -27,6 +27,7 @@ public class UserController {
     
     @PostMapping("/register")
     public User register(@RequestBody User user) {
+    	System.out.println("register");
     	if(StringUtils.isBlank(user.getPassword()) || StringUtils.isBlank(user.getName())) {
     		throw new UserNotFoundException("Username and password must be filled in");
     	}

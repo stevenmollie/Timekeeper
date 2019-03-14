@@ -5,6 +5,8 @@ import be.sbs.timekeeper.application.exception.UserAlreadyExistsException;
 import be.sbs.timekeeper.application.exception.UserNotActiveException;
 import be.sbs.timekeeper.application.exception.UserNotFoundException;
 import be.sbs.timekeeper.application.repository.UserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,9 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private MailService mailService;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -51,7 +56,10 @@ public class UserService {
     	
     	inputUser.setPassword(passwordEncoder.encode(inputUser.getPassword()));
     	inputUser.setActive(false);
+    	inputUser.setActivationToken(createToken());
     	User outputUser = userRepository.insert(inputUser);
+    	
+    	mailService.sendMail(outputUser.getEmail(), outputUser.getActivationToken(), outputUser.getName());
     	return outputUser;
     }
 

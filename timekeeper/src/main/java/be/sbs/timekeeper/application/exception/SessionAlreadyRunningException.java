@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
 public class SessionAlreadyRunningException extends RuntimeException {
-	
 	public SessionAlreadyRunningException(String message) {
 		super(message);
 	}

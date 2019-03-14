@@ -5,16 +5,18 @@ import java.util.Properties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MailConfig {
 	@Bean
 	public JavaMailSender getMailSender() {
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-		mailSender.setHost("smtp.gmail.com");
+		mailSender.setHost("smtp.sendgrid.net");
 		mailSender.setPort(587);
 		
-		mailSender.setUsername("sexybatmansquad@gmail.com");
-		mailSender.setPassword("Mammoth123");
+		mailSender.setUsername("apikey");
+		mailSender.setPassword("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");
 		
 		Properties props = mailSender.getJavaMailProperties();
 		props.put("mail.transport.protocol", "smtp");
