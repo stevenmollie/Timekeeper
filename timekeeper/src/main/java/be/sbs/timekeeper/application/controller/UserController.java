@@ -27,11 +27,19 @@ public class UserController {
     
     @PostMapping("/register")
     public User register(@RequestBody User user) {
-    	System.out.println("register");
     	if(StringUtils.isBlank(user.getPassword()) || StringUtils.isBlank(user.getName())) {
     		throw new UserNotFoundException("Username and password must be filled in");
     	}
     	
     	return userService.register(user);
+    }
+    
+    @PostMapping("/activate")
+    public User activate(@RequestBody User user) {
+    	if(StringUtils.isBlank(user.getName()) || StringUtils.isBlank(user.getActivationToken())) {
+    		throw new UserNotFoundException("Username and activationcode must be filled in");
+    	}
+    	
+    	return userService.activate(user);
     }
 }

@@ -15,7 +15,7 @@ public class MailService {
 	
 	public void sendMail(String email, String activationToken, String userName) {
 		SimpleMailMessage message = new SimpleMailMessage();
-		message.setTo("steven.mollie@gmail.com");
+		message.setTo(email);
 		message.setSubject("Activation account timekeeper");
 		String activationUrl = buildUrl(activationToken, userName);
 		message.setText("Activate your account: " + activationUrl);

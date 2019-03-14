@@ -1,6 +1,8 @@
 package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.User;
+import be.sbs.timekeeper.application.exception.ActivationTokenNotCorrectException;
+import be.sbs.timekeeper.application.exception.UserAlreadyActivatedException;
 import be.sbs.timekeeper.application.exception.UserAlreadyExistsException;
 import be.sbs.timekeeper.application.exception.UserNotActiveException;
 import be.sbs.timekeeper.application.exception.UserNotFoundException;
@@ -49,6 +51,24 @@ public class UserService {
         outputUser.setToken(createToken());
 
         return userRepository.save(outputUser);
+    }
+    
+    public User activate(User inputUser) {
+    	User outputUser = userRepository.findFirstByName(inputUser.getName())
+    						.orElseThrow(() -> new UserNotFoundException("User not found"));
+    	System.out.println(outputUser.getActivationToken());
+    	System.out.println(inputUser.getActivationToken());
+    	if(!outputUser.getActivationToken().equals(inputUser.getActivationToken())) {
+    		throw new ActivationTokenNotCorrectException("Token not correct");
+    	}
+    	
+    	if(outputUser.getActive() == true) {
+    		throw new UserAlreadyActivatedException("User already activated");
+    	}
+    	
+    	outputUser.setActive(true);
+    	
+    	return userRepository.save(outputUser);
     }
     
     public User register(User inputUser) {
