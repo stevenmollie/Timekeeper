@@ -16,6 +16,7 @@ public class MailConfig {
 		mailSender.setPort(587);
 		
 		mailSender.setUsername("apikey");
+		mailSender.setPassword("nice try");
 		
 		Properties props = mailSender.getJavaMailProperties();
 		props.put("mail.transport.protocol", "smtp");

@@ -8,7 +8,7 @@ import be.sbs.timekeeper.application.security.MailConfig;
 
 @Service
 public class MailService {
-	private static final String baseUrl = "http://localhost:8383/Timekeeper-frontend/activate.html";
+	private static final String baseUrl = "http://localhost:8383/Timekeeper-frontend/login.html";
 	
 	@Autowired
 	public MailConfig javaMailSender;

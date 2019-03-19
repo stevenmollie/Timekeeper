@@ -56,8 +56,7 @@ public class UserService {
     public User activate(User inputUser) {
     	User outputUser = userRepository.findFirstByName(inputUser.getName())
     						.orElseThrow(() -> new UserNotFoundException("User not found"));
-    	System.out.println(outputUser.getActivationToken());
-    	System.out.println(inputUser.getActivationToken());
+
     	if(!outputUser.getActivationToken().equals(inputUser.getActivationToken())) {
     		throw new ActivationTokenNotCorrectException("Token not correct");
     	}
