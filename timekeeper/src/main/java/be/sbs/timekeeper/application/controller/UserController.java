@@ -37,7 +37,7 @@ public class UserController {
     @PostMapping("/activate")
     public User activate(@RequestBody User user) {
     	if(StringUtils.isBlank(user.getName()) || StringUtils.isBlank(user.getActivationToken())) {
-    		throw new UserNotFoundException("Name and activationcode must be filled in");
+    		throw new UserNotFoundException("Name and activation token must be filled in");
     	}
     	
     	return userService.activate(user);
