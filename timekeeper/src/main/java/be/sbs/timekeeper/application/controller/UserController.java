@@ -20,15 +20,15 @@ public class UserController {
     @PostMapping("/login")
     public User login(@RequestBody User user){
         if(StringUtils.isBlank(user.getPassword()) || StringUtils.isBlank(user.getName())){
-            throw new UserNotFoundException("Username and password must be filled in");
+            throw new UserNotFoundException("Name and password must be filled in");
         }
         return userService.login(user);
     }
     
     @PostMapping("/register")
     public User register(@RequestBody User user) {
-    	if(StringUtils.isBlank(user.getPassword()) || StringUtils.isBlank(user.getName())) {
-    		throw new UserNotFoundException("Username and password must be filled in");
+    	if(StringUtils.isBlank(user.getPassword()) || StringUtils.isBlank(user.getName()) || StringUtils.isBlank(user.getEmail())) {
+    		throw new UserNotFoundException("Name and password and email must be filled in");
     	}
     	
     	return userService.register(user);
@@ -37,7 +37,7 @@ public class UserController {
     @PostMapping("/activate")
     public User activate(@RequestBody User user) {
     	if(StringUtils.isBlank(user.getName()) || StringUtils.isBlank(user.getActivationToken())) {
-    		throw new UserNotFoundException("Username and activationcode must be filled in");
+    		throw new UserNotFoundException("Name and activationcode must be filled in");
     	}
     	
     	return userService.activate(user);

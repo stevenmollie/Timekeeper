@@ -2,6 +2,7 @@ package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.User;
 import be.sbs.timekeeper.application.exception.ActivationTokenNotCorrectException;
+import be.sbs.timekeeper.application.exception.BadMailFormatException;
 import be.sbs.timekeeper.application.exception.UserAlreadyActivatedException;
 import be.sbs.timekeeper.application.exception.UserAlreadyExistsException;
 import be.sbs.timekeeper.application.exception.UserNotActiveException;
@@ -13,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
@@ -71,6 +74,9 @@ public class UserService {
     }
     
     public User register(User inputUser) {
+    	if(!isEmailAddress(inputUser.getEmail())) {
+    		throw new BadMailFormatException("Invalid email");
+    	}
     	checkIfUserExists(inputUser);
     	
     	inputUser.setPassword(passwordEncoder.encode(inputUser.getPassword()));
@@ -85,6 +91,8 @@ public class UserService {
 	private void checkIfUserExists(User inputUser) {
 		userRepository.findFirstByName(inputUser.getName())
     		.ifPresent(user -> throwUserExistsException());
+		userRepository.findFirstByEmail(inputUser.getEmail())
+			.ifPresent(user -> throwUserExistsException());
 	}
 
 	private void throwUserExistsException() {
@@ -113,6 +121,13 @@ public class UserService {
             buffer.append((char) randomLimitedInt);
         }
         return buffer.toString();
+    }
+    
+    private boolean isEmailAddress(String mail) {
+    	Pattern pattern = Pattern.compile("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}");
+    	Matcher matcher = pattern.matcher(mail);
+    	
+    	return matcher.matches();
     }
 
     public void saveUser(User user){
