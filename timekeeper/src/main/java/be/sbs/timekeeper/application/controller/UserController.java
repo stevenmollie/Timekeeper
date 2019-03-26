@@ -4,6 +4,7 @@ import be.sbs.timekeeper.application.beans.User;
 import be.sbs.timekeeper.application.exception.UserNotFoundException;
 import be.sbs.timekeeper.application.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,11 +36,12 @@ public class UserController {
     }
     
     @PostMapping("/activate")
-    public User activate(@RequestBody User user) {
+    @ResponseStatus(HttpStatus.OK)
+    public void activate(@RequestBody User user) {
     	if(StringUtils.isBlank(user.getName()) || StringUtils.isBlank(user.getActivationToken())) {
     		throw new UserNotFoundException("Name and activation token must be filled in");
     	}
     	
-    	return userService.activate(user);
+    	userService.activate(user);
     }
 }

@@ -56,10 +56,10 @@ public class UserService {
         return userRepository.save(outputUser);
     }
     
-    public User activate(User inputUser) {
+    public void activate(User inputUser) {
     	User outputUser = userRepository.findFirstByName(inputUser.getName())
     						.orElseThrow(() -> new UserNotFoundException("User not found"));
-
+    	
     	if(!outputUser.getActivationToken().equals(inputUser.getActivationToken())) {
     		throw new ActivationTokenNotCorrectException("Token not correct");
     	}
@@ -70,7 +70,7 @@ public class UserService {
     	
     	outputUser.setActive(true);
     	
-    	return userRepository.save(outputUser);
+    	userRepository.save(outputUser);
     }
     
     public User register(User inputUser) {
