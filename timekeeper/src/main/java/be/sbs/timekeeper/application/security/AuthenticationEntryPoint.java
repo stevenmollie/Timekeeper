@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 @Component
-public class MyBasicAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
+public class AuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 
     @Override
     public void commence

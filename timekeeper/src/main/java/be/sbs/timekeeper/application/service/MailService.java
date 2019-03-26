@@ -1,10 +1,9 @@
 package be.sbs.timekeeper.application.service;
 
+import be.sbs.timekeeper.application.security.MailConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
-
-import be.sbs.timekeeper.application.security.MailConfig;
 
 @Service
 public class MailService {

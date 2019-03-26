@@ -1,4 +1,4 @@
-package be.sbs.timekeeper.application.configuration;
+package be.sbs.timekeeper.application.configuration.converter;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

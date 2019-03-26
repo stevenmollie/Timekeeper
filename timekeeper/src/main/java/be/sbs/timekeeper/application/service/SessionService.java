@@ -1,13 +1,10 @@
 package be.sbs.timekeeper.application.service;
 
-import be.sbs.timekeeper.application.beans.Task;
-import be.sbs.timekeeper.application.enums.TaskStatus;
-import be.sbs.timekeeper.application.service.TaskService;
 import be.sbs.timekeeper.application.beans.Session;
-import be.sbs.timekeeper.application.exception.BadRequestException;
-import be.sbs.timekeeper.application.exception.SessionAlreadyRunningException;
+import be.sbs.timekeeper.application.beans.Task;
 import be.sbs.timekeeper.application.beans.User;
-import be.sbs.timekeeper.application.service.UserService;
+import be.sbs.timekeeper.application.enums.TaskStatus;
+import be.sbs.timekeeper.application.exception.SessionAlreadyRunningException;
 import be.sbs.timekeeper.application.exception.SessionNotFoundException;
 import be.sbs.timekeeper.application.repository.SessionRepository;
 import be.sbs.timekeeper.application.repository.SessionRepositoryCustom;
@@ -18,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class SessionService {

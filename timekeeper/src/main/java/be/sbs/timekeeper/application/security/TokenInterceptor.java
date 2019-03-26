@@ -7,15 +7,19 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class TokenInterceptor extends HandlerInterceptorAdapter {
     @Autowired
     private UserService userService;
 
+    private final List<String> PATHS_WITHOUT_TOKEN = Arrays.asList("/login", "/user/register", "/activate", "/error", "/captcha");
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if(!request.getRequestURI().contains("/login") && !request.getRequestURI().contains("/register") && !request.getRequestURI().contains("/activate") && !request.getRequestURI().contains("/error")) {
+        if (!PATHS_WITHOUT_TOKEN.contains(request.getRequestURI())) {
             String token = request.getHeader("Token");
 
             if (!userService.userAuthenticated(token)) {
