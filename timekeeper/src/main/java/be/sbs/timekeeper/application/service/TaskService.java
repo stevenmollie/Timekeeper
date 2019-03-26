@@ -52,7 +52,7 @@ public class TaskService {
         taskRepository.insert(task);
         
         //change the status of the project
-        if(project.getStatus() != ProjectStatus.IN_PROGRESS) {
+        if(project.getStatus() == ProjectStatus.EMPTY) {
         	project.setStatus(ProjectStatus.READY_TO_START);
         	projectService.updateProject(project);
         }
