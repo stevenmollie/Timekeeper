@@ -39,6 +39,10 @@ public class TaskService {
     public List<Task> getAllTasksFromProject(Project project) {
         return taskRepositoryCustom.findTasksByProjectId(project.getId());
     }
+    
+    public List<Task> getTasksByKeyword(String keyword){
+    	return taskRepository.findByNameContainsOrDescriptionContains(keyword,keyword);
+    }
 
     public Task getById(String taskId) {
         return taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task not found"));
