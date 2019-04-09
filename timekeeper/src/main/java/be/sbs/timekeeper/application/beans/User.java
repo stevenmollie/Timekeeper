@@ -13,6 +13,8 @@ public class User {
     private String email;
     private String activationToken;
     private String resetPasswordToken;
+    private String selectedTask;
+    private String selectedProject;
 
     public User(String id, String name, String password, String token, Boolean active, String email, String activationToken, String resetPasswordToken) {
         this.id = id;
@@ -88,4 +90,20 @@ public class User {
 	public void setResetPasswordToken(String resetPasswordToken) {
 		this.resetPasswordToken = resetPasswordToken;
 	}
+
+    public String getSelectedTask() {
+        return selectedTask;
+    }
+
+    public void setSelectedTask(String selectedTask) {
+        this.selectedTask = selectedTask;
+    }
+
+    public String getSelectedProject() {
+        return selectedProject;
+    }
+
+    public void setSelectedProject(String selectedProject) {
+        this.selectedProject = selectedProject;
+    }
 }

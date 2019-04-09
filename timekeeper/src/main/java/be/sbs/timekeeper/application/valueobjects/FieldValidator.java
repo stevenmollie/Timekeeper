@@ -1,8 +1,8 @@
 package be.sbs.timekeeper.application.valueobjects;
 
 import be.sbs.timekeeper.application.beans.Project;
-import be.sbs.timekeeper.application.beans.Task;
 import be.sbs.timekeeper.application.beans.Session;
+import be.sbs.timekeeper.application.beans.Task;
 import be.sbs.timekeeper.application.enums.Priority;
 import be.sbs.timekeeper.application.enums.ProjectStatus;
 import be.sbs.timekeeper.application.enums.TaskStatus;
@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +22,7 @@ public class FieldValidator {
 	private static final List<String> PATCHABLE_FIELDS_FOR_SESSIONS = Arrays.asList("/startTime", "/endTime", "/workTime");
     private static final List<String> PATCHABLE_FIELDS_FOR_TASKS = Arrays.asList("/currentTime", "/priority", "/status");
     private static final List<String> PATCHABLE_FIELDS_FOR_PROJECTS = Arrays.asList("/deadLine", "/name", "/description", "/status");
+    private static final List<String> PATCHABLE_FIELDS_FOR_USERS = Arrays.asList("/selectedTask");
     private static final List<String> PERMITTED_PATCH_OP = Collections.singletonList("replace");
 
     private enum DateType {
@@ -235,4 +235,16 @@ public class FieldValidator {
     		return false;
     	}
 	}
+
+
+    //---validators for User
+
+    public static void validatePATCHUser(PatchOperation operation) {
+        if (!isValidUserPatchRequest(operation))
+            throw new BadRequestException("Patch not permitted for these values.");
+    }
+
+    private static boolean isValidUserPatchRequest(PatchOperation operation) {
+        return allowedFieldsArePresent(operation, PATCHABLE_FIELDS_FOR_USERS);
+    }
 }

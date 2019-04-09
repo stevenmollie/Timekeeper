@@ -3,7 +3,9 @@ package be.sbs.timekeeper.application.controller;
 import be.sbs.timekeeper.application.beans.User;
 import be.sbs.timekeeper.application.exception.UserNotFoundException;
 import be.sbs.timekeeper.application.service.UserService;
+import be.sbs.timekeeper.application.valueobjects.PatchOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,14 +46,21 @@ public class UserController {
     	
     	userService.activate(user);
     }
-    
+
     @PostMapping("/passwordforgotten")
     @ResponseStatus(HttpStatus.OK)
     public void sendResetPasswordMail(@RequestBody User user) {
     	if(StringUtils.isBlank(user.getEmail())) {
     		throw new UserNotFoundException("Email must be filled in");
     	}
-    	
-    	userService.sendResetPasswordMail(user);
+
+        userService.sendResetPasswordMail(user);
+    }
+
+    @PatchMapping("/")
+    @ResponseStatus(HttpStatus.OK)
+    public void setSelectedTask(@RequestBody PatchOperation patch, @RequestHeader HttpHeaders headers) {
+        String token = headers.get("token").get(0);
+        userService.applyPatch(patch, token);
     }
 }

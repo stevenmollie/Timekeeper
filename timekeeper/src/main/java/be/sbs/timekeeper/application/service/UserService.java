@@ -1,15 +1,11 @@
 package be.sbs.timekeeper.application.service;
 
+import be.sbs.timekeeper.application.beans.Task;
 import be.sbs.timekeeper.application.beans.User;
-import be.sbs.timekeeper.application.exception.ActivationTokenNotCorrectException;
-import be.sbs.timekeeper.application.exception.BadMailFormatException;
-import be.sbs.timekeeper.application.exception.UserAlreadyActivatedException;
-import be.sbs.timekeeper.application.exception.UserAlreadyExistsException;
-import be.sbs.timekeeper.application.exception.UserNotActiveException;
-import be.sbs.timekeeper.application.exception.UserNotFoundException;
+import be.sbs.timekeeper.application.exception.*;
 import be.sbs.timekeeper.application.repository.UserRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import be.sbs.timekeeper.application.valueobjects.FieldValidator;
+import be.sbs.timekeeper.application.valueobjects.PatchOperation;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +18,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    
-    @Autowired
-    private MailService mailService;
+    private final MailService mailService;
+    private final TaskService taskService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, MailService mailService, TaskService taskService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.mailService = mailService;
+        this.taskService = taskService;
     }
 
     public User getById(String userId) {
@@ -121,7 +118,7 @@ public class UserService {
     }
 
     public boolean userAuthenticated(String token){
-        //TODO: memory leak
+
         return userRepository.findFirstByToken(token).isPresent();
     }
 
@@ -147,6 +144,15 @@ public class UserService {
     }
 
     public void saveUser(User user){
+        userRepository.save(user);
+    }
+
+    public void applyPatch(PatchOperation patch, String token) {
+        User user = getByToken(token);
+        FieldValidator.validatePATCHUser(patch);
+        Task task = taskService.getById(patch.getValue());
+        user.setSelectedTask(task.getId());
+        user.setSelectedProject(task.getProjectId());
         userRepository.save(user);
     }
 }
