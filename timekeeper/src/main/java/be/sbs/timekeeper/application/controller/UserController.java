@@ -45,7 +45,7 @@ public class UserController {
     	userService.activate(user);
     }
     
-    @PostMapping("/forgot")
+    @PostMapping("/passwordforgotten")
     @ResponseStatus(HttpStatus.OK)
     public void sendResetPasswordMail(@RequestBody User user) {
     	if(StringUtils.isBlank(user.getEmail())) {
