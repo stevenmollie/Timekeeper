@@ -15,7 +15,7 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
     @Autowired
     private UserService userService;
 
-    private final List<String> PATHS_WITHOUT_TOKEN = Arrays.asList("/login", "/user/register", "/activate", "/error", "/captcha");
+    private final List<String> PATHS_WITHOUT_TOKEN = Arrays.asList("/login", "/user/register", "/activate", "/error", "/captcha", "/passwordforgotten", "/resetpassword");
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
