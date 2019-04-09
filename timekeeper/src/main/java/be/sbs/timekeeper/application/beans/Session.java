@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Document
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,9 +20,9 @@ public class Session {
 	private LocalDateTime startTime;
     private LocalDateTime endTime;
     @JsonFormat(pattern = "HH:mm:ss")
-    private LocalTime workTime;
+    private Duration workTime;
 
-    public Session(String id, String taskId, String userId, LocalDateTime startTime, LocalDateTime endTime, LocalTime workTime) {
+    public Session(String id, String taskId, String userId, LocalDateTime startTime, LocalDateTime endTime, Duration workTime) {
         this.id = id;
         this.taskId = taskId;
         this.userId = userId;
@@ -74,11 +74,11 @@ public class Session {
 		this.endTime = endTime;
 	}
 
-    public LocalTime getWorkTime() {
+    public Duration getWorkTime() {
 		return workTime;
 	}
 
-    public void setWorkTime(LocalTime workTime) {
+    public void setWorkTime(Duration workTime) {
 		this.workTime = workTime;
 	}
 
