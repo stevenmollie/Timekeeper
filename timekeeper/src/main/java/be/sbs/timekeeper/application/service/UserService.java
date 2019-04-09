@@ -84,8 +84,24 @@ public class UserService {
     	inputUser.setActivationToken(createToken());
     	User outputUser = userRepository.insert(inputUser);
     	
-    	mailService.sendMail(outputUser.getEmail(), outputUser.getActivationToken(), outputUser.getName());
+    	mailService.sendActivationMail(outputUser.getEmail(), outputUser.getActivationToken(), outputUser.getName());
     	return outputUser;
+    }
+    
+
+    
+    public void sendResetPasswordMail(User inputUser) {
+    	if(!isEmailAddress(inputUser.getEmail())) {
+    		throw new BadMailFormatException("Invalid email");
+    	}
+    	
+    	User outputUser = userRepository.findFirstByEmail(inputUser.getEmail())
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
+    	
+    	outputUser.setResetPasswordToken(createToken());
+    	userRepository.save(outputUser);
+    	
+    	mailService.sendResetPasswordMail(outputUser);
     }
 
 	private void checkIfUserExists(User inputUser) {

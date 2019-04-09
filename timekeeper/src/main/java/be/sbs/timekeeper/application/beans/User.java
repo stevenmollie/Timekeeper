@@ -12,8 +12,9 @@ public class User {
     private Boolean active;
     private String email;
     private String activationToken;
+    private String resetPasswordToken;
 
-    public User(String id, String name, String password, String token, Boolean active, String email, String activationToken) {
+    public User(String id, String name, String password, String token, Boolean active, String email, String activationToken, String resetPasswordToken) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -21,6 +22,7 @@ public class User {
         this.active = active;
         this.email = email;
         this.activationToken = activationToken;
+        this.resetPasswordToken = resetPasswordToken;
     }
 
     public String getId() {
@@ -77,5 +79,13 @@ public class User {
 	
 	public void setActivationToken(String activationToken) {
 		this.activationToken = activationToken;
+	}
+
+	public String getResetPasswordToken() {
+		return resetPasswordToken;
+	}
+
+	public void setResetPasswordToken(String resetPasswordToken) {
+		this.resetPasswordToken = resetPasswordToken;
 	}
 }

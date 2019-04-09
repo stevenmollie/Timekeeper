@@ -44,4 +44,14 @@ public class UserController {
     	
     	userService.activate(user);
     }
+    
+    @PostMapping("/forgot")
+    @ResponseStatus(HttpStatus.OK)
+    public void sendResetPasswordMail(@RequestBody User user) {
+    	if(StringUtils.isBlank(user.getEmail())) {
+    		throw new UserNotFoundException("Email must be filled in");
+    	}
+    	
+    	userService.sendResetPasswordMail(user);
+    }
 }
