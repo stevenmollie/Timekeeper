@@ -41,6 +41,10 @@ public class ProjectService {
         return projects;
     }
 
+    public List<Project> getProjectsByKeyword(String keyword) {
+    	return projectRepository.findByNameContainsOrDescriptionContains(keyword,keyword);
+    }
+    
     public void addProject(Project project) {
         FieldValidator.validatePOSTProject(project);
         FieldConverter.setDefaultProjectFields(project);
