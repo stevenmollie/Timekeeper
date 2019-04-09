@@ -1,21 +1,20 @@
 package be.sbs.timekeeper.application.valueobjects;
 
-import be.sbs.timekeeper.application.beans.Session;
-
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
 import be.sbs.timekeeper.application.beans.Project;
+import be.sbs.timekeeper.application.beans.Session;
 import be.sbs.timekeeper.application.beans.Task;
 import be.sbs.timekeeper.application.enums.Priority;
 import be.sbs.timekeeper.application.enums.ProjectStatus;
 import be.sbs.timekeeper.application.enums.TaskStatus;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class FieldConverter {
 
     public static void setDefaultSessionFields(Session session) {
         if (session.getStartTime() == null) session.setStartTime(LocalDateTime.now());
-        if (session.getWorkTime() == null) session.setWorkTime(LocalTime.of(0, 0, 0, 0));
+        if (session.getWorkTime() == null) session.setWorkTime(Duration.ZERO);
     }
     
     //TODO: check if this thing works with LocalDateTime fields or not

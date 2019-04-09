@@ -14,6 +14,8 @@ import be.sbs.timekeeper.application.valueobjects.PatchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -90,15 +92,34 @@ public class SessionService {
     }
 
     public void deleteSession(String sessionId) {
-        sessionRepository.findById(sessionId).orElseThrow(() -> new SessionNotFoundException("Session : " + sessionId + " doesn't exist!"));
+        sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new SessionNotFoundException("Session : " + sessionId + " doesn't exist!"));
         sessionRepository.deleteById(sessionId);
     }
-    
-    public void deleteSessionsFromTask(String taskId) {
-    	sessionRepositoryCustom.deleteSessionsFromTaskId(taskId);
+
+    public void startSessionFor(User user, String taskId) {
+        sessionRepositoryCustom.findActiveSessionByUserId(user.getId())
+                .ifPresent(session -> {
+                    throw new SessionAlreadyRunningException("A session is already running for this user");
+                });
+
+        createNewSessionFor(user, taskId);
     }
-    
-    public void deleteSessionsFromUser(String userId) {
-    	sessionRepositoryCustom.deleteSessionsFromUserId(userId);
+
+    public void stopSessionFor(User user) {
+        Session session = sessionRepositoryCustom.findActiveSessionByUserId(user.getId())
+                .orElseThrow(() -> new SessionNotFoundException("No active sessions for " + user.getId() + " " + user.getName()));
+
+        session.setEndTime(LocalDateTime.now());
+        session.setWorkTime(Duration.between(session.getStartTime(), session.getEndTime()));
+        sessionRepository.save(session);
+    }
+
+    private void createNewSessionFor(User user, String taskId) {
+        Session session = new Session();
+        session.setStartTime(LocalDateTime.now());
+        session.setUserId(user.getId());
+        session.setTaskId(taskId);
+        sessionRepository.save(session);
     }
 }
