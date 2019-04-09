@@ -23,10 +23,13 @@ public class TaskService {
 
     private final ProjectService projectService;
 
-    public TaskService(TaskRepository taskRepository, TaskRepositoryCustom taskRepositoryCustom, ProjectService projectService) {
+    private final UserService userService;
+
+    public TaskService(TaskRepository taskRepository, TaskRepositoryCustom taskRepositoryCustom, ProjectService projectService, UserService userService) {
         this.taskRepository = taskRepository;
         this.taskRepositoryCustom = taskRepositoryCustom;
         this.projectService = projectService;
+        this.userService = userService;
     }
 
     public List<Task> getAll() {

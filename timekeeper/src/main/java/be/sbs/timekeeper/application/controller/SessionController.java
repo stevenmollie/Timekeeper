@@ -68,27 +68,9 @@ public class SessionController {
     @GetMapping(path = "/_active-session", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public Session getActiveSession(@RequestHeader HttpHeaders headers){
-		User user = getUser(headers);
-		return sessionService.getActiveSessionByUser(user);
-	}
-
-	@PostMapping(path = "/session/_start")
-	@ResponseStatus(HttpStatus.OK)
-	public void startSession(@RequestParam String taskId, @RequestHeader HttpHeaders headers) {
-		User user = getUser(headers);
-		sessionService.startSessionFor(user, taskId);
-	}
-
-	@PostMapping(path = "/session/_stop")
-	@ResponseStatus(HttpStatus.OK)
-	public void stopSession(@RequestHeader HttpHeaders headers) {
-		User user = getUser(headers);
-		sessionService.stopSessionFor(user);
-	}
-
-	private User getUser(@RequestHeader HttpHeaders headers) {
-		String token = headers.get("token").get(0);
-		return userService.getByToken(token);
+        String token = headers.get("token").get(0);
+        User user = userService.getByToken(token);
+        return sessionService.getActiveSessionByUser(user);
 	}
 
     //---- POST -----------------------------------------------------------------------------------
