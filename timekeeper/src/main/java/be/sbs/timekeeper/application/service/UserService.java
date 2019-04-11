@@ -2,13 +2,23 @@ package be.sbs.timekeeper.application.service;
 
 import be.sbs.timekeeper.application.beans.Task;
 import be.sbs.timekeeper.application.beans.User;
-import be.sbs.timekeeper.application.exception.*;
+import be.sbs.timekeeper.application.exception.ActivationTokenNotCorrectException;
+import be.sbs.timekeeper.application.exception.BadMailFormatException;
+import be.sbs.timekeeper.application.exception.ResetTokenExpiredException;
+import be.sbs.timekeeper.application.exception.UserAlreadyActivatedException;
+import be.sbs.timekeeper.application.exception.UserAlreadyExistsException;
+import be.sbs.timekeeper.application.exception.UserNotActiveException;
+import be.sbs.timekeeper.application.exception.UserNotFoundException;
 import be.sbs.timekeeper.application.repository.UserRepository;
 import be.sbs.timekeeper.application.valueobjects.FieldValidator;
 import be.sbs.timekeeper.application.valueobjects.PatchOperation;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,8 +28,11 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final MailService mailService;
     private final TaskService taskService;
+    private final static Duration MAX_RESET_TOKEN_LIFE = Duration.ofMinutes(10);
+    
+    @Autowired
+    private MailService mailService;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, MailService mailService, TaskService taskService) {
         this.userRepository = userRepository;
@@ -79,7 +92,7 @@ public class UserService {
     	inputUser.setPassword(passwordEncoder.encode(inputUser.getPassword()));
     	inputUser.setActive(false);
     	inputUser.setActivationToken(createToken());
-    	User outputUser = userRepository.insert(inputUser);
+    	User outputUser = userRepository.save(inputUser);
     	
     	mailService.sendActivationMail(outputUser.getEmail(), outputUser.getActivationToken(), outputUser.getName());
     	return outputUser;
@@ -96,9 +109,25 @@ public class UserService {
 				.orElseThrow(() -> new UserNotFoundException("User not found"));
     	
     	outputUser.setResetPasswordToken(createToken());
-    	userRepository.save(outputUser);
+    	outputUser.setResetTime(LocalDateTime.now());
+    	outputUser = userRepository.save(outputUser);
     	
     	mailService.sendResetPasswordMail(outputUser);
+    }
+    
+    public void resetPassword(User inputUser) {
+    	User outputUser = userRepository.findFirstByNameAndResetPasswordToken(inputUser.getName(), inputUser.getResetPasswordToken())
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
+    	
+    	if(Duration.between(LocalDateTime.now(), outputUser.getResetTime()).compareTo(MAX_RESET_TOKEN_LIFE) > 0) {
+    		throw new ResetTokenExpiredException("Reset token expired");
+    	}
+    	
+    	outputUser.setPassword(passwordEncoder.encode(inputUser.getPassword()));
+    	outputUser.setResetPasswordToken(null);
+    	outputUser.setResetTime(null);
+    	
+    	userRepository.save(outputUser);
     }
 
 	private void checkIfUserExists(User inputUser) {

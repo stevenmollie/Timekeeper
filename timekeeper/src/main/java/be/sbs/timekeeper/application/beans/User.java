@@ -1,6 +1,10 @@
 package be.sbs.timekeeper.application.beans;
 
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Id;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 
 public class User {
@@ -15,8 +19,10 @@ public class User {
     private String resetPasswordToken;
     private String selectedTask;
     private String selectedProject;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+	private LocalDateTime resetTime;
 
-    public User(String id, String name, String password, String token, Boolean active, String email, String activationToken, String resetPasswordToken) {
+    public User(String id, String name, String password, String token, Boolean active, String email, String activationToken, String resetPasswordToken, LocalDateTime resetTime) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -25,6 +31,7 @@ public class User {
         this.email = email;
         this.activationToken = activationToken;
         this.resetPasswordToken = resetPasswordToken;
+        this.resetTime = resetTime;
     }
 
     public String getId() {
@@ -106,4 +113,12 @@ public class User {
     public void setSelectedProject(String selectedProject) {
         this.selectedProject = selectedProject;
     }
+    
+	public LocalDateTime getResetTime() {
+		return resetTime;
+	}
+
+	public void setResetTime(LocalDateTime resetTime) {
+		this.resetTime = resetTime;
+	}
 }

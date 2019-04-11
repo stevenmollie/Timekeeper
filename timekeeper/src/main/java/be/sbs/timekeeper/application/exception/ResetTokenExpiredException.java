@@ -1,0 +1,11 @@
+package be.sbs.timekeeper.application.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class ResetTokenExpiredException extends RuntimeException {
+	public ResetTokenExpiredException(String message) {
+		super(message);
+	}
+}

@@ -63,4 +63,14 @@ public class UserController {
         String token = headers.get("token").get(0);
         userService.applyPatch(patch, token);
     }
+    
+	@PostMapping("/resetpassword")
+    @ResponseStatus(HttpStatus.OK)
+    public void resetPassword(@RequestBody User user) {
+    	if(StringUtils.isBlank(user.getPassword()) || StringUtils.isBlank(user.getName()) || StringUtils.isBlank(user.getResetPasswordToken())) {
+    		throw new UserNotFoundException("Name, password and reset password token must be filled in");
+    	}
+    	
+    	userService.resetPassword(user);
+    }
 }
